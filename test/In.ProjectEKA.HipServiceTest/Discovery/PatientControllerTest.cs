@@ -40,6 +40,114 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
 
+        [Fact]
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelIsInvalid()
+        {
+            var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
+            var _client = _server.CreateClient();
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+            var requestContent = new DiscoveryRequestPayloadBuilder()
+                .WithRequestId()
+                .WithTransactionId()
+                .WithPatientId()
+                .WithPatientName()
+                .WithPatientGender()
+                .Build();
+
+            var response =
+                await _client.PostAsync(
+                    "v1/care-contexts/discover",
+                    requestContent);
+
+            Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
+        }
+
+        [Fact]
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelStateIsInvalid(){
+
+        var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
+
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        var httpClient = new HttpClient(handlerMock.Object);
+        var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+        var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+        var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
+        controller.ModelState.AddModelError("TransactionId", "Required");
+
+        const string transactionId = "transactionId";
+        const string requestId = "requestId";
+        var timestamp = DateTime.MinValue;
+        var patientEnquiry = new PatientEnquiry( "id",null, null, "name", Gender.F, 1);
+        var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
+        var result = controller.DiscoverPatientCareContexts(discoveryRequest);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+
+        }
+
+        [Fact]        
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfNameAndGenderBothEmpty()
+        {
+            var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
+
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
+
+            const string transactionId = "transactionId";
+            const string requestId = "requestId";
+            var timestamp = DateTime.MinValue;
+
+            const string name = null;
+            Gender? gender = null;
+
+            var patientEnquiry = new PatientEnquiry( "id", null, null, name, gender, 1);
+            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
+
+            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
+
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]        
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfPatientIdNotProvided()
+        {
+            var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
+
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
+
+            const string transactionId = "transactionId";
+            const string requestId = "requestId";
+            var timestamp = DateTime.MinValue;
+
+            const string patientId = "";
+
+            var patientEnquiry = new PatientEnquiry(patientId, null, null, "name", Gender.F, 1);
+            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
+
+            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
+
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
         class TestStartup
         {
             public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
@@ -191,114 +299,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     Encoding.UTF8,
                     "application/json");
             }
-        }
-
-        [Fact]
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelIsInvalid()
-        {
-            var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
-            var _client = _server.CreateClient();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-            var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithRequestId()
-                .WithTransactionId()
-                .WithPatientId()
-                .WithPatientName()
-                .WithPatientGender()
-                .Build();
-
-            var response =
-                await _client.PostAsync(
-                    "v1/care-contexts/discover",
-                    requestContent);
-
-            Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
-        }
-
-        [Fact]
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelStateIsInvalid(){
-
-        var patientDiscovery = new PatientDiscovery(
-            matchingRepository.Object,
-            discoveryRequestRepository.Object,
-            linkPatientRepository.Object,
-            patientRepository.Object);
-
-        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var httpClient = new HttpClient(handlerMock.Object);
-        var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
-        var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-        var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
-        controller.ModelState.AddModelError("TransactionId", "Required");
-
-        const string transactionId = "transactionId";
-        const string requestId = "requestId";
-        var timestamp = DateTime.MinValue;
-        var patientEnquiry = new PatientEnquiry( "id",null, null, "name", Gender.F, 1);
-        var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
-        var result = controller.DiscoverPatientCareContexts(discoveryRequest);
-
-        Assert.IsType<BadRequestObjectResult>(result);
-
-        }
-
-        [Fact]        
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfNameAndGenderBothEmpty()
-        {
-            var patientDiscovery = new PatientDiscovery(
-            matchingRepository.Object,
-            discoveryRequestRepository.Object,
-            linkPatientRepository.Object,
-            patientRepository.Object);
-
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var httpClient = new HttpClient(handlerMock.Object);
-            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
-            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
-
-            const string transactionId = "transactionId";
-            const string requestId = "requestId";
-            var timestamp = DateTime.MinValue;
-
-            const string name = null;
-            Gender? gender = null;
-
-            var patientEnquiry = new PatientEnquiry( "id", null, null, name, gender, 1);
-            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
-
-            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
-
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-
-        [Fact]        
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfPatientIdNotProvided()
-        {
-            var patientDiscovery = new PatientDiscovery(
-            matchingRepository.Object,
-            discoveryRequestRepository.Object,
-            linkPatientRepository.Object,
-            patientRepository.Object);
-
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var httpClient = new HttpClient(handlerMock.Object);
-            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
-            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
-
-            const string transactionId = "transactionId";
-            const string requestId = "requestId";
-            var timestamp = DateTime.MinValue;
-
-            const string patientId = "";
-
-            var patientEnquiry = new PatientEnquiry(patientId, null, null, "name", Gender.F, 1);
-            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
-
-            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
-
-            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }
