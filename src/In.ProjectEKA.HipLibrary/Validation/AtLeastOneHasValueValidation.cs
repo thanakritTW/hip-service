@@ -25,17 +25,14 @@ namespace In.ProjectEKA.HipLibrary.Validation
 
         public override bool IsValid(object value)
         {
-            if(value != null)
-            {  
-                PropertyInfo propertyInfo;
-                foreach (string propertyName in PropertyList)
-                {
-                    propertyInfo = value.GetType().GetProperty(propertyName);
+            PropertyInfo propertyInfo;
+            foreach (string propertyName in PropertyList)
+            {
+                propertyInfo = value.GetType().GetProperty(propertyName);
 
-                    if (propertyInfo != null && propertyInfo.GetValue(value, null) != null)
-                    {
-                        return true;
-                    }
+                if (propertyInfo != null && propertyInfo.GetValue(value, null) != null)
+                {
+                    return true;
                 }
             }
 
