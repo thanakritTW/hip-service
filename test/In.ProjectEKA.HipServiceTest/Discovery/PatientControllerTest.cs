@@ -2,6 +2,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Security.Claims;
@@ -40,18 +41,19 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
 
-        [Fact]
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelIsInvalid()
+        [Theory]
+        [InlineData(HttpStatusCode.Accepted, "RequestId", "TransactionId", "PatientId", "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId", "TransactionId", "PatientId")]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId", "PatientId", "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "RequestId", "TransactionId", "PatientName", "PatientGender")]
+        private async void DiscoverPatientCareContexts_ReturnsExpectedStatusCode_WhenRequestIsSentWithParameters(
+            HttpStatusCode expectedStatusCode, params string[] requestParametersToSet)
         {
             var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
             var _client = _server.CreateClient();
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
             var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithRequestId()
-                .WithTransactionId()
-                .WithPatientId()
-                .WithPatientName()
-                .WithPatientGender()
+                .WithParameters(requestParametersToSet)
                 .Build();
 
             var response =
@@ -59,84 +61,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     "v1/care-contexts/discover",
                     requestContent);
 
-            Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
-        }
-
-        [Fact]
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WheNameAndGenderBothEmpty()
-        {
-            var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
-            var _client = _server.CreateClient();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-            var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithRequestId()
-                .WithTransactionId()
-                .WithPatientId()
-                .Build();
-
-            var response =
-                await _client.PostAsync(
-                    "v1/care-contexts/discover",
-                    requestContent);
-
-            Console.WriteLine(response.RequestMessage.Content);
-
-            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
-        }
-        [Fact]
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelStateIsInvalid(){
-
-        var patientDiscovery = new PatientDiscovery(
-            matchingRepository.Object,
-            discoveryRequestRepository.Object,
-            linkPatientRepository.Object,
-            patientRepository.Object);
-
-        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var httpClient = new HttpClient(handlerMock.Object);
-        var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
-        var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-        var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
-        controller.ModelState.AddModelError("TransactionId", "Required");
-
-        const string transactionId = "transactionId";
-        const string requestId = "requestId";
-        var timestamp = DateTime.MinValue;
-        var patientEnquiry = new PatientEnquiry( "id",null, null, "name", Gender.F, 1);
-        var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
-        var result = controller.DiscoverPatientCareContexts(discoveryRequest);
-
-        Assert.IsType<BadRequestObjectResult>(result);
-
-        }
-
-        [Fact]        
-        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfPatientIdNotProvided()
-        {
-            var patientDiscovery = new PatientDiscovery(
-            matchingRepository.Object,
-            discoveryRequestRepository.Object,
-            linkPatientRepository.Object,
-            patientRepository.Object);
-
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-            var httpClient = new HttpClient(handlerMock.Object);
-            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
-            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
-
-            const string transactionId = "transactionId";
-            const string requestId = "requestId";
-            var timestamp = DateTime.MinValue;
-
-            const string patientId = "";
-
-            var patientEnquiry = new PatientEnquiry(patientId, null, null, "name", Gender.F, 1);
-            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
-
-            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
-
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(expectedStatusCode, response.StatusCode);
         }
 
         class TestStartup
@@ -264,14 +189,23 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 return this;
             }
 
-            private string AddWithCommaIfNonEmpty(string text)
+            public DiscoveryRequestPayloadBuilder WithParameters(string[] requestParametersToSet)
             {
-                if (string.IsNullOrEmpty(text)) return text;
+                requestParametersToSet.ToList().ForEach(p =>
+                {
+                    _ = (p switch
+                    {
+                        "RequestId" => WithRequestId(),
+                        "TransactionId" => WithTransactionId(),
+                        "PatientId" => WithPatientId(),
+                        "PatientName" => WithPatientName(),
+                        "PatientGender" => WithPatientGender(),
+                        _ => throw new ArgumentException("Invalid request parameter name in test", "p")
+                    });
+                });
 
-                return text + ",";
+                return this;
             }
-
-            private bool IsAnyStringNonEmpty(params string[] texts) => texts.Any(text => !string.IsNullOrEmpty(text));
 
             public StringContent Build()
             {
@@ -290,6 +224,15 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     Encoding.UTF8,
                     "application/json");
             }
+
+            private string AddWithCommaIfNonEmpty(string text)
+            {
+                if (string.IsNullOrEmpty(text)) return text;
+
+                return text + ",";
+            }
+
+            private bool IsAnyStringNonEmpty(params string[] texts) => texts.Any(text => !string.IsNullOrEmpty(text));
         }
     }
 }
