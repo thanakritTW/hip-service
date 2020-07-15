@@ -59,11 +59,6 @@ namespace In.ProjectEKA.HipService.Discovery
             return BadRequest("Patient id must be provided."); 
         }
 
-        if(string.IsNullOrWhiteSpace(request.Patient?.Name) && request.Patient?.Gender == null)
-        {
-            return BadRequest("Patient name or gender must be provided."); 
-        }
-
             backgroundJob.Enqueue(() => GetPatientCareContext(request));
             return Accepted();
         }
