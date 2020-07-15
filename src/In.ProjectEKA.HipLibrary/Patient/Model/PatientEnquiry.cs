@@ -1,7 +1,9 @@
 namespace In.ProjectEKA.HipLibrary.Patient.Model
 {
     using System.Collections.Generic;
+    using In.ProjectEKA.HipLibrary.Validation;
 
+    [AtLeastOneHasValueValidation("Name", "Gender", ErrorMessage = "Patient name or gender must be provided.")]
     public class PatientEnquiry
     {
         /// <summary>
