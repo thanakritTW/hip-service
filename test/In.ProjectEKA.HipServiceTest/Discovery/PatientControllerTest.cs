@@ -1,41 +1,32 @@
 namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
-    using System.Net;
     using System.Net.Http;
-    using FluentAssertions;
+    using System.Net.Http.Headers;
+    using System.Security.Claims;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using Hangfire;
     using HipLibrary.Matcher;
     using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
     using HipService.Discovery;
     using HipService.Link;
-    using HipService.Link.Model;
-    using Moq;
-    using Optional;
-    using Xunit;
-    using Match = HipLibrary.Patient.Model.Match;
-    using static Builder.TestBuilders;
     using In.ProjectEKA.HipService.Gateway;
-    using Hangfire;
-    using Hangfire.Common;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Hosting;
-    using In.ProjectEKA.HipService;
-    using System.Text;
-    using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.Extensions.Options;
     using Microsoft.Extensions.Logging;
-    using System.Text.Encodings.Web;
-    using System.Security.Claims;
-    using System.Net.Http.Headers;
+    using Microsoft.Extensions.Options;
+    using Moq;
     using Newtonsoft.Json;
-    using System.Text.Json;
+    using Xunit;
 
     public class PatientControllerTest
     {
@@ -74,10 +65,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
             public class AuthenticatedTestRequestMiddleware
             {
-                //public const string TestingCookieAuthentication = "TestCookieAuthentication";
-                //public const string TestingHeader = "X-Integration-Testing";
-                //public const string TestingHeaderValue = "abcde-12345";
-
                 private readonly RequestDelegate _next;
 
                 public AuthenticatedTestRequestMiddleware(RequestDelegate next)
@@ -91,27 +78,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     var identity = new ClaimsIdentity(claims, "Test");
                     var principal = new ClaimsPrincipal(identity);
                     context.User = principal;
-                    Console.WriteLine("User set to " + principal);
-
-                    //    if (context.Request.Headers.Keys.Contains(TestingHeader) &&
-                    //        context.Request.Headers[TestingHeader].First().Equals(TestingHeaderValue))
-                    //    {
-                    //        if (context.Request.Headers.Keys.Contains("my-name"))
-                    //        {
-                    //            var name =
-                    //                context.Request.Headers["my-name"].First();
-                    //            var id =
-                    //                context.Request.Headers.Keys.Contains("my-id")
-                    //                    ? context.Request.Headers["my-id"].First() : "";
-                    //            ClaimsIdentity claimsIdentity = new ClaimsIdentity(new List<Claim>
-                    //{
-                    //    new Claim(ClaimTypes.Name, name),
-                    //    new Claim(ClaimTypes.NameIdentifier, id),
-                    //}, TestingCookieAuthentication);
-                    //            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                    //            context.User = claimsPrincipal;
-                    //        }
-                    //    }
 
                     await _next(context);
                 }
@@ -161,8 +127,69 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     })
                     .Services
                         .AddAuthentication("Test")
-                            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { })
-                    ;
+                            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+            }
+        }
+
+        class DiscoveryRequestPayloadBuilder
+        {
+            string _requestId;
+            string _transactionId;
+            string _patientId;
+            string _patientName;
+            string _patientGender;
+
+            public DiscoveryRequestPayloadBuilder WithRequestId()
+            {
+                _requestId = "\"requestId\": \"3fa85f64 - 5717 - 4562 - b3fc - 2c963f66afa6\"";
+                return this;
+            }
+            public DiscoveryRequestPayloadBuilder WithTransactionId()
+            {
+                _transactionId = "\"transactionId\": \"4fa85f64 - 5717 - 4562 - b3fc - 2c963f66afa6\"";
+                return this;
+            }
+            public DiscoveryRequestPayloadBuilder WithPatientId()
+            {
+                _patientId = "\"id\": \"<patient-id>@<consent-manager-id>\"";
+                return this;
+            }
+            public DiscoveryRequestPayloadBuilder WithPatientName()
+            {
+                _patientName = "\"name\": \"chandler bing\"";
+                return this;
+            }
+            public DiscoveryRequestPayloadBuilder WithPatientGender()
+            {
+                _patientGender = "\"gender\": \"M\"";
+                return this;
+            }
+
+            private string AddWithCommaIfNonEmpty(string text)
+            {
+                if (string.IsNullOrEmpty(text)) return text;
+
+                return text + ",";
+            }
+
+            private bool IsAnyStringNonEmpty(params string[] texts) => texts.Any(text => !string.IsNullOrEmpty(text));
+
+            public StringContent Build()
+            {
+                return new StringContent(
+                    $@"{{
+                        {AddWithCommaIfNonEmpty(_requestId)}
+                        {AddWithCommaIfNonEmpty(_transactionId)}
+                        {(IsAnyStringNonEmpty(_patientId, _patientName, _patientGender)
+                            ? $"\"patient\": {{ " +
+                                    $"{AddWithCommaIfNonEmpty(_patientId)}" +
+                                    $"{AddWithCommaIfNonEmpty(_patientName)} " +
+                                    $"{AddWithCommaIfNonEmpty(_patientGender)} " +
+                                $"}}"
+                            : "")}
+                    }}",
+                    Encoding.UTF8,
+                    "application/json");
             }
         }
 
@@ -172,28 +199,20 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
             var _client = _server.CreateClient();
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
+            var requestContent = new DiscoveryRequestPayloadBuilder()
+                .WithRequestId()
+                .WithTransactionId()
+                .WithPatientId()
+                .WithPatientName()
+                .WithPatientGender()
+                .Build();
 
             var response =
                 await _client.PostAsync(
                     "v1/care-contexts/discover",
-                    new StringContent(
-                        @"{
-                            ""requestId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
-	                        ""transactionId"": ""3fa85f64-5717-4562-b3fc-2c963f66afa6"",
-	                        ""patient"": {
-                                ""id"": ""<patient-id>@<consent-manager-id>"",
-		                        ""name"": ""chandler bing"",
-		                        ""gender"": ""M"",
-                            }
-                        }",
-                        Encoding.UTF8,
-                        "application/json"));
+                    requestContent);
 
-            Console.WriteLine(_client.BaseAddress);
-            Console.WriteLine(response.RequestMessage.RequestUri);
-            Console.WriteLine(response.RequestMessage.Headers);
-            Console.WriteLine(response);
-            Assert.True(response.IsSuccessStatusCode);
+            Assert.Equal(System.Net.HttpStatusCode.Accepted, response.StatusCode);
         }
 
         [Fact]
