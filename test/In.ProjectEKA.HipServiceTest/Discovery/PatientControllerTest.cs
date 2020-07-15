@@ -42,10 +42,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
 
         [Theory]
-        [InlineData(HttpStatusCode.Accepted, "RequestId", "TransactionId", "PatientId", "PatientName", "PatientGender")]
-        [InlineData(HttpStatusCode.BadRequest, "RequestId", "TransactionId", "PatientId")]
-        [InlineData(HttpStatusCode.BadRequest, "RequestId", "PatientId", "PatientName", "PatientGender")]
-        [InlineData(HttpStatusCode.BadRequest, "RequestId", "TransactionId", "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.Accepted)]
+        //[InlineData(HttpStatusCode.Accepted, "RequestId", "TransactionId", "PatientId", "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientName", "PatientGender")]
+        [InlineData(HttpStatusCode.BadRequest, "TransactionId")]
+        [InlineData(HttpStatusCode.BadRequest, "PatientId")]
         private async void DiscoverPatientCareContexts_ReturnsExpectedStatusCode_WhenRequestIsSentWithParameters(
             HttpStatusCode expectedStatusCode, params string[] requestParametersToSet)
         {
@@ -53,7 +54,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var _client = _server.CreateClient();
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
             var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithParameters(requestParametersToSet)
+                .WithMissingParameters(requestParametersToSet)
                 .Build();
 
             var response =
@@ -189,17 +190,23 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 return this;
             }
 
-            public DiscoveryRequestPayloadBuilder WithParameters(string[] requestParametersToSet)
+            public DiscoveryRequestPayloadBuilder WithMissingParameters(string[] requestParametersToSet)
             {
+                WithRequestId();
+                WithTransactionId();
+                WithPatientId();
+                WithPatientName();
+                WithPatientGender();
+
                 requestParametersToSet.ToList().ForEach(p =>
                 {
                     _ = (p switch
                     {
-                        "RequestId" => WithRequestId(),
-                        "TransactionId" => WithTransactionId(),
-                        "PatientId" => WithPatientId(),
-                        "PatientName" => WithPatientName(),
-                        "PatientGender" => WithPatientGender(),
+                        "RequestId" => _requestId = null,
+                        "TransactionId" => _transactionId = null,
+                        "PatientId" => _patientId = null,
+                        "PatientName" => _patientName = null,
+                        "PatientGender" => _patientGender = null,
                         _ => throw new ArgumentException("Invalid request parameter name in test", "p")
                     });
                 });
