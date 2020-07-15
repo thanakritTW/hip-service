@@ -21,7 +21,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -31,30 +30,19 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
     public class PatientControllerTest
     {
-        private readonly Mock<IDiscoveryRequestRepository> discoveryRequestRepository = new Mock<IDiscoveryRequestRepository>();
-
-        private readonly Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
-
-        private readonly Mock<IMatchingRepository> matchingRepository = new Mock<IMatchingRepository>();
-
-        private readonly Mock<IPatientRepository> patientRepository = new Mock<IPatientRepository>();
-
-        private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
-
         [Theory]
         [InlineData(HttpStatusCode.Accepted)]
-        //[InlineData(HttpStatusCode.Accepted, "RequestId", "TransactionId", "PatientId", "PatientName", "PatientGender")]
         [InlineData(HttpStatusCode.BadRequest, "PatientName", "PatientGender")]
         [InlineData(HttpStatusCode.BadRequest, "TransactionId")]
         [InlineData(HttpStatusCode.BadRequest, "PatientId")]
         private async void DiscoverPatientCareContexts_ReturnsExpectedStatusCode_WhenRequestIsSentWithParameters(
-            HttpStatusCode expectedStatusCode, params string[] requestParametersToSet)
+            HttpStatusCode expectedStatusCode, params string[] missingRequestParameters)
         {
             var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
             var _client = _server.CreateClient();
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
             var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithMissingParameters(requestParametersToSet)
+                .WithMissingParameters(missingRequestParameters)
                 .Build();
 
             var response =
