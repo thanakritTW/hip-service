@@ -54,11 +54,6 @@ namespace In.ProjectEKA.HipService.Discovery
             return BadRequest(ModelState);
         }
 
-        if(string.IsNullOrWhiteSpace(request.Patient?.Id))
-        {
-            return BadRequest("Patient id must be provided."); 
-        }
-
             backgroundJob.Enqueue(() => GetPatientCareContext(request));
             return Accepted();
         }
