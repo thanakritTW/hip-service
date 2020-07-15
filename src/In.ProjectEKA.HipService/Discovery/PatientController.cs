@@ -47,8 +47,23 @@ namespace In.ProjectEKA.HipService.Discovery
         [Consumes("application/json")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        public AcceptedResult DiscoverPatientCareContexts([FromBody, BindRequired] DiscoveryRequest request)
+        public ActionResult DiscoverPatientCareContexts([FromBody, BindRequired] DiscoveryRequest request)
         {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if(string.IsNullOrWhiteSpace(request.Patient?.Id))
+        {
+            return BadRequest("Patient id must be provided."); 
+        }
+
+        if(string.IsNullOrWhiteSpace(request.Patient?.Name) && request.Patient?.Gender == null)
+        {
+            return BadRequest("Patient name or gender must be provided."); 
+        }
+
             backgroundJob.Enqueue(() => GetPatientCareContext(request));
             return Accepted();
         }
