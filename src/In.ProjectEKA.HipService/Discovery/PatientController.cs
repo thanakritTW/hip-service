@@ -49,10 +49,10 @@ namespace In.ProjectEKA.HipService.Discovery
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         public ActionResult DiscoverPatientCareContexts([FromBody, BindRequired] DiscoveryRequest request)
         {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             backgroundJob.Enqueue(() => GetPatientCareContext(request));
             return Accepted();
