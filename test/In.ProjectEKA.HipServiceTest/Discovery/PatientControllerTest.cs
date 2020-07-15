@@ -32,6 +32,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     {
         [Theory]
         [InlineData(HttpStatusCode.Accepted)]
+        [InlineData(HttpStatusCode.Accepted, "RequestId")]
+        [InlineData(HttpStatusCode.Accepted, "RequestId", "PatientGender")]
+        [InlineData(HttpStatusCode.Accepted, "RequestId", "PatientName")]
+        [InlineData(HttpStatusCode.Accepted, "PatientName")]
+        [InlineData(HttpStatusCode.Accepted, "PatientGender")]
         [InlineData(HttpStatusCode.BadRequest, "PatientName", "PatientGender")]
         [InlineData(HttpStatusCode.BadRequest, "TransactionId")]
         [InlineData(HttpStatusCode.BadRequest, "PatientId")]
