@@ -1,237 +1,125 @@
 namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Net.Mime;
-    using System.Security.Claims;
-    using System.Text;
-    using System.Text.Encodings.Web;
-    using System.Text.Json;
-    using System.Threading.Tasks;
-    using Hangfire;
+    using FluentAssertions;
     using HipLibrary.Matcher;
     using HipLibrary.Patient;
+    using HipLibrary.Patient.Model;
     using HipService.Discovery;
     using HipService.Link;
-    using In.ProjectEKA.HipLibrary.Patient.Model;
-    using In.ProjectEKA.HipService.Gateway;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
+    using HipService.Link.Model;
     using Moq;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
+    using Optional;
     using Xunit;
+    using Match = HipLibrary.Patient.Model.Match;
+    using static Builder.TestBuilders;
+    using In.ProjectEKA.HipService.Gateway;
+    using Hangfire;
+    using Hangfire.Common;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
 
     public class PatientControllerTest
     {
-        [Theory]
-        [InlineData(HttpStatusCode.Accepted)]
-        [InlineData(HttpStatusCode.Accepted, "RequestId")]
-        [InlineData(HttpStatusCode.Accepted, "RequestId", "PatientGender")]
-        [InlineData(HttpStatusCode.Accepted, "RequestId", "PatientName")]
-        [InlineData(HttpStatusCode.Accepted, "PatientName")]
-        [InlineData(HttpStatusCode.Accepted, "PatientGender")]
-        [InlineData(HttpStatusCode.BadRequest, "PatientName", "PatientGender")]
-        [InlineData(HttpStatusCode.BadRequest, "TransactionId")]
-        [InlineData(HttpStatusCode.BadRequest, "PatientId")]
-        private async void DiscoverPatientCareContexts_ReturnsExpectedStatusCode_WhenRequestIsSentWithParameters(
-            HttpStatusCode expectedStatusCode, params string[] missingRequestParameters)
-        {
-            var _server = new Microsoft.AspNetCore.TestHost.TestServer(new WebHostBuilder().UseStartup<TestStartup>());
-            var _client = _server.CreateClient();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
-            var requestContent = new DiscoveryRequestPayloadBuilder()
-                .WithMissingParameters(missingRequestParameters)
-                .Build();
+        private readonly Mock<IDiscoveryRequestRepository> discoveryRequestRepository = new Mock<IDiscoveryRequestRepository>();
 
-            var response =
-                await _client.PostAsync(
-                    "v1/care-contexts/discover",
-                    requestContent);
+        private readonly Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
 
-            Assert.Equal(expectedStatusCode, response.StatusCode);
+        private readonly Mock<IMatchingRepository> matchingRepository = new Mock<IMatchingRepository>();
+
+        private readonly Mock<IPatientRepository> patientRepository = new Mock<IPatientRepository>();
+
+        private readonly Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
+
+        [Fact]
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_WhenModelStateIsInvalid(){
+
+        var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
+
+        var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        var httpClient = new HttpClient(handlerMock.Object);
+        var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+        var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+        var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
+        controller.ModelState.AddModelError("TransactionId", "Required");
+
+        const string transactionId = "transactionId";
+        const string requestId = "requestId";
+        var timestamp = DateTime.MinValue;
+        var patientEnquiry = new PatientEnquiry( "id",null, null, "name", Gender.F, 1);
+        var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
+        var result = controller.DiscoverPatientCareContexts(discoveryRequest);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+
         }
 
-        class TestStartup
+        [Fact]        
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfNameAndGenderBothEmpty()
         {
-            public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-            {
-                public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
-                    ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-                    : base(options, logger, encoder, clock)
-                {
-                }
+            var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
 
-                protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-                {
-                    var claims = new[] { new Claim(ClaimTypes.Name, "Test user") };
-                    var identity = new ClaimsIdentity(claims, "Test");
-                    var principal = new ClaimsPrincipal(identity);
-                    var ticket = new AuthenticationTicket(principal, "Test");
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
 
-                    var result = AuthenticateResult.Success(ticket);
+            const string transactionId = "transactionId";
+            const string requestId = "requestId";
+            var timestamp = DateTime.MinValue;
 
-                    return Task.FromResult(result);
-                }
-            }
+            const string name = null;
+            Gender? gender = null;
 
-            public class AuthenticatedTestRequestMiddleware
-            {
-                private readonly RequestDelegate _next;
+            var patientEnquiry = new PatientEnquiry( "id", null, null, name, gender, 1);
+            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
 
-                public AuthenticatedTestRequestMiddleware(RequestDelegate next)
-                {
-                    _next = next;
-                }
+            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
 
-                public async Task Invoke(HttpContext context)
-                {
-                    var claims = new[] { new Claim(ClaimTypes.Name, "Test user") };
-                    var identity = new ClaimsIdentity(claims, "Test");
-                    var principal = new ClaimsPrincipal(identity);
-                    context.User = principal;
-
-                    await _next(context);
-                }
-            }
-
-            public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-            {
-                app
-                    .UseRouting()
-                    .UseAuthentication()
-                    .UseAuthorization()
-                    .UseEndpoints(endpoints => { endpoints.MapControllers(); })
-                    .UseMiddleware<AuthenticatedTestRequestMiddleware>();
-            }
-
-            public void ConfigureServices(IServiceCollection services)
-            {
-                Mock<IDiscoveryRequestRepository> discoveryRequestRepository = new Mock<IDiscoveryRequestRepository>();
-                Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
-                Mock<IMatchingRepository> matchingRepository = new Mock<IMatchingRepository>();
-                Mock<IPatientRepository> patientRepository = new Mock<IPatientRepository>();
-                Mock<IBackgroundJobClient> backgroundJobClient = new Mock<IBackgroundJobClient>();
-
-                var patientDiscovery = new PatientDiscovery(
-                    matchingRepository.Object,
-                    discoveryRequestRepository.Object,
-                    linkPatientRepository.Object,
-                    patientRepository.Object);
-
-                var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-                var httpClient = new HttpClient(handlerMock.Object);
-                var gatewayConfiguration = new GatewayConfiguration { Url = "http://someUrl" };
-                var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
-
-                services
-                    .AddScoped(provider => patientDiscovery)
-                    .AddScoped(provider => gatewayClient)
-                    .AddScoped(provider => backgroundJobClient.Object)
-                    .AddRouting(options => options.LowercaseUrls = true)
-                    .AddControllers()
-                    .AddNewtonsoftJson(
-                        options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; })
-                    .AddJsonOptions(options =>
-                    {
-                        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                        options.JsonSerializerOptions.IgnoreNullValues = true;
-                    })
-                    .Services
-                        .AddAuthentication("Test")
-                            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
-            }
+            Assert.IsType<BadRequestObjectResult>(result);
         }
 
-        class DiscoveryRequestPayloadBuilder
+        [Fact]        
+        private async void DiscoverPatientCareContexts_ReturnsBadRequestResult_IfPatientIdNotProvided()
         {
-            string _requestId;
-            string _transactionId;
-            string _patientId;
-            string _patientName;
-            Gender? _patientGender;
+            var patientDiscovery = new PatientDiscovery(
+            matchingRepository.Object,
+            discoveryRequestRepository.Object,
+            linkPatientRepository.Object,
+            patientRepository.Object);
 
-            public DiscoveryRequestPayloadBuilder WithRequestId()
-            {
-                _requestId = "3fa85f64 - 5717 - 4562 - b3fc - 2c963f66afa6";
-                return this;
-            }
-            public DiscoveryRequestPayloadBuilder WithTransactionId()
-            {
-                _transactionId = "4fa85f64 - 5717 - 4562 - b3fc - 2c963f66afa6";
-                return this;
-            }
-            public DiscoveryRequestPayloadBuilder WithPatientId()
-            {
-                _patientId = "<patient-id>@<consent-manager-id>";
-                return this;
-            }
-            public DiscoveryRequestPayloadBuilder WithPatientName()
-            {
-                _patientName = "chandler bing";
-                return this;
-            }
-            public DiscoveryRequestPayloadBuilder WithPatientGender()
-            {
-                _patientGender = Gender.M;
-                return this;
-            }
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            var httpClient = new HttpClient(handlerMock.Object);
+            var gatewayConfiguration = new GatewayConfiguration {Url = "http://someUrl"};
+            var gatewayClient = new GatewayClient(httpClient, gatewayConfiguration);
+            var controller = new CareContextDiscoveryController(patientDiscovery, gatewayClient, backgroundJobClient.Object);
 
-            public DiscoveryRequestPayloadBuilder WithMissingParameters(string[] requestParametersToSet)
-            {
-                WithRequestId();
-                WithTransactionId();
-                WithPatientId();
-                WithPatientName();
-                WithPatientGender();
+            const string transactionId = "transactionId";
+            const string requestId = "requestId";
+            var timestamp = DateTime.MinValue;
 
-                requestParametersToSet.ToList().ForEach(p =>
-                {
-                    switch (p)
-                    {
-                        case "RequestId": { _requestId = null; break; }
-                        case "TransactionId": { _transactionId = null; break; }
-                        case "PatientId": { _patientId = null; break; }
-                        case "PatientName": { _patientName = null; break; }
-                        case "PatientGender": { _patientGender = null; break; }
-                        default: throw new ArgumentException("Invalid request parameter name in test", nameof(p));
-                    }
-                });
+            const string patientId = "";
 
-                return this;
-            }
+            var patientEnquiry = new PatientEnquiry(patientId, null, null, "name", Gender.F, 1);
+            var discoveryRequest = new DiscoveryRequest(patientEnquiry, requestId, transactionId, timestamp);
 
-            public StringContent Build()
-            {
-                var requestObject = new DiscoveryRequest(
-                    new PatientEnquiry(
-                        _patientId, verifiedIdentifiers: null, unverifiedIdentifiers: null,
-                        _patientName, _patientGender, yearOfBirth: null),
-                    _requestId,
-                    _transactionId,
-                    DateTime.Now);
-                var json = JsonConvert.SerializeObject(requestObject, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    }
-                });
+            var result = controller.DiscoverPatientCareContexts(discoveryRequest);
 
-                return new StringContent(
-                    json,
-                    Encoding.UTF8,
-                    MediaTypeNames.Application.Json);
-            }
+            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }
