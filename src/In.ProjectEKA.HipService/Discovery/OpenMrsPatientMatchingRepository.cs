@@ -19,14 +19,26 @@ namespace In.ProjectEKA.HipService.Discovery
 
         public async Task<IQueryable<Patient>> Where(DiscoveryRequest request)
         {
-            if(request == null)
+            if (request == null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
             var result = await _patientDal.LoadPatientsAsync(request.Patient?.Name, request.Patient?.Gender, request.Patient?.YearOfBirth);
 
-            return (from r in result select new Patient() { Name = r.Name.First().Text }).ToList().AsQueryable();
+            return (from r in result
+                    select new Patient()
+                    {
+                        Name = r.Name.First().Text,
+                        Gender = r.Gender.HasValue ? (Gender)((int)r.Gender) : Gender.M,
+                        YearOfBirth = ParseDateText(r.BirthDate)
+                    }).ToList().AsQueryable();
+        }
+
+        private ushort ParseDateText(string birthDateText)
+        {
+            ushort.TryParse(birthDateText, out ushort birthDate);
+            return birthDate;
         }
     }
 }
