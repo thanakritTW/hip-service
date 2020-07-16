@@ -3,41 +3,54 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using System;
     using FluentAssertions;
     using HipService.Discovery;
-    using HipService.Discovery.Database;
     using HipLibrary.Patient.Model;
-    using Microsoft.EntityFrameworkCore;
     using Xunit;
     using Moq;
     using System.Collections.Generic;
-    using FluentAssertions;
     using System.Linq;
     using System.Threading.Tasks;
+    using OpenMrsPatient = Hl7.Fhir.Model.Patient;
+    using OpenMrsPatientName = Hl7.Fhir.Model.HumanName;
+    using OpenMrsGender = Hl7.Fhir.Model.AdministrativeGender;
+
     public class OpenMrsPatientMatchingRepositoryTest
     {
         private Mock<IPatientDal> patientDal = new Mock<IPatientDal>();
 
         public OpenMrsPatientMatchingRepositoryTest()
         {
-                patientDal.Setup(e => e.LoadPatientsAsync(
-                It.IsAny<string>(),
-                It.IsAny<Gender?>(),
-                It.IsAny<ushort?>())).Returns( (string name, Gender? gender, ushort? yob) => {
-                    var humanName = new Hl7.Fhir.Model.HumanName();
-                    humanName.Text = name;
+                patientDal.Setup(e =>
+                    e
+                        .LoadPatientsAsync(
+                            It.IsAny<string>(),
+                            It.IsAny<Gender?>(),
+                            It.IsAny<ushort?>()))
+                        .Returns(
+                            (string name, Gender? gender, ushort? yob) => {
+                                var humanName = new OpenMrsPatientName();
+                                humanName.Text = name;
 
-                    return Task.FromResult(new List<Hl7.Fhir.Model.Patient>(){ new Hl7.Fhir.Model.Patient() { Name = new List<Hl7.Fhir.Model.HumanName>{ humanName }, Gender = Hl7.Fhir.Model.AdministrativeGender.Female, BirthDate = "1981" }});
-                }
-                );
+                                return Task.FromResult(
+                                    new List<OpenMrsPatient>() {
+                                        new OpenMrsPatient() {
+                                            Name = new List<OpenMrsPatientName>{ humanName },
+                                            Gender = OpenMrsGender.Female,
+                                            BirthDate = "1981"
+                                        }
+                                    });
+                        });
         }
 
         [Fact]
-        private async void PatientDalIsInvokedWithExpectedParameters()
+        private async void PatientRepositoryWhereQuery_InvokesPatientDalWithExpectedParameters()
         {
             const string  patientName = "patient name";
             Gender? patientGender = Gender.F;
             ushort?  patientYob = 1981;
-
-            var patientEnquiry = new PatientEnquiry("id", verifiedIdentifiers: null, unverifiedIdentifiers: null, patientName, patientGender, patientYob);
+            var patientEnquiry =
+                new PatientEnquiry(
+                    "id", verifiedIdentifiers: null, unverifiedIdentifiers: null,
+                    patientName, patientGender, patientYob);
             var request = new DiscoveryRequest(patientEnquiry,"requestId", "transactionId", DateTime.Now);
             var repo = new OpenMrsPatientMatchingRepository(patientDal.Object);
            
@@ -48,16 +61,18 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        private async void ReturnsAnHIPPatientWithExpectedValues()
+        private async void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithExpectedValues_WhenPatientFoundInOpenMrs()
         {
             const string  patientName = "patient name";
             Gender? patientGender = Gender.F;
             ushort?  patientYob = 1981;
-
-            var patientEnquiry = new PatientEnquiry("id", verifiedIdentifiers: null, unverifiedIdentifiers: null, patientName, patientGender, patientYob);
+            var patientEnquiry =
+                new PatientEnquiry(
+                    "id", verifiedIdentifiers: null, unverifiedIdentifiers: null,
+                    patientName, patientGender, patientYob);
             var request = new DiscoveryRequest(patientEnquiry,"requestId", "transactionId", DateTime.Now);
             var repo = new OpenMrsPatientMatchingRepository(patientDal.Object);
-           
+
             var patient = repo.Where(request).Result.Single();
 
             patient.Name.Should().Be(patientName);
