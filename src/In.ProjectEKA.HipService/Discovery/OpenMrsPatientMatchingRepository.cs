@@ -31,14 +31,8 @@ namespace In.ProjectEKA.HipService.Discovery
                     {
                         Name = r.Name.First().Text,
                         Gender = r.Gender.HasValue ? (Gender)((int)r.Gender) : Gender.M,
-                        YearOfBirth = ParseDateText(r.BirthDate)
+                        YearOfBirth = (ushort)r.BirthDateElement.ToDateTimeOffset()?.Year
                     }).ToList().AsQueryable();
-        }
-
-        private ushort ParseDateText(string birthDateText)
-        {
-            ushort.TryParse(birthDateText, out ushort birthDate);
-            return birthDate;
         }
     }
 }
