@@ -1,11 +1,13 @@
 namespace In.ProjectEKA.HipService.Discovery
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System;
     using System.Threading.Tasks;
     using HipLibrary.Matcher;
     using HipLibrary.Patient.Model;
     using DiscoveryRequest = HipLibrary.Patient.Model.DiscoveryRequest;
+    using static HipLibrary.Matcher.StrongMatcherFactory;
 
     public class OpenMrsPatientMatchingRepository : IMatchingRepository
     {
@@ -17,35 +19,14 @@ namespace In.ProjectEKA.HipService.Discovery
 
         public async Task<IQueryable<Patient>> Where(DiscoveryRequest request)
         {
-            if (request == null)
+            if(request == null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var result =
-                await _patientDal.LoadPatientsAsync(
-                    request.Patient?.Name,
-                    request.Patient?.Gender,
-                    request.Patient?.YearOfBirth);
+            var result = await _patientDal.LoadPatientsAsync(request.Patient?.Name, request.Patient?.Gender, request.Patient?.YearOfBirth);
 
-            return result
-                    .Select(p => p.ToHipPatient())
-                    .ToList()
-                    .AsQueryable();
-        }
-    }
-
-    public static class PatientExtensions
-    {
-        public static Patient ToHipPatient(this Hl7.Fhir.Model.Patient openMrsPatient)
-        {
-
-            return new Patient()
-            {
-                Name = openMrsPatient.Name.First().Text,
-                Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
-                YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year
-           };
+            return (from r in result select new Patient() { Name = r.Name.First().Text }).ToList().AsQueryable();
         }
     }
 }
