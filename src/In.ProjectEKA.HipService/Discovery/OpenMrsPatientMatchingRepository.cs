@@ -30,7 +30,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     select new Patient()
                     {
                         Name = r.Name.First().Text,
-                        Gender = r.Gender.HasValue ? (Gender)((int)r.Gender) : Gender.M,
+                        Gender = r.Gender.HasValue ? (Gender)((int)r.Gender) : (Gender?)null,
                         YearOfBirth = (ushort)r.BirthDateElement.ToDateTimeOffset()?.Year
                     }).ToList().AsQueryable();
         }
