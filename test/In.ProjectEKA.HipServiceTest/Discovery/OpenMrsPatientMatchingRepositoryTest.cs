@@ -24,7 +24,8 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 It.IsAny<ushort?>())).Returns( (string name, Gender? gender, ushort? yob) => {
                     var humanName = new Hl7.Fhir.Model.HumanName();
                     humanName.Text = name;
-                    return Task.FromResult(new List<Hl7.Fhir.Model.Patient>(){ new Hl7.Fhir.Model.Patient() { Name = new List<Hl7.Fhir.Model.HumanName>{ humanName } }});
+
+                    return Task.FromResult(new List<Hl7.Fhir.Model.Patient>(){ new Hl7.Fhir.Model.Patient() { Name = new List<Hl7.Fhir.Model.HumanName>{ humanName }, Gender = Hl7.Fhir.Model.AdministrativeGender.Female, BirthDate = "1981" }});
                 }
                 );
         }
@@ -60,7 +61,8 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var patient = repo.Where(request).Result.Single();
 
             patient.Name.Should().Be(patientName);
-
+            patient.Gender.Should().Be(patientGender);
+            patient.YearOfBirth.Should().Be(patientYob);
         }
     }
 }
