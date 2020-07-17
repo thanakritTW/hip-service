@@ -6,6 +6,6 @@ namespace In.ProjectEKA.HipService.Discovery
 {
     public interface IPatientDal
     {
-        Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, ushort? yearOfBirth);
+        Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, string yearOfBirth);
     }
 }
