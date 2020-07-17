@@ -28,7 +28,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                         .Returns(
                             (string name, OpenMrsGender? gender, string yob) => {
                                 var humanName = new OpenMrsPatientName();
-                                humanName.Text = name;
+                                humanName.Text = $"OpenMRS name of {name}";
 
                                 return Task.FromResult(
                                     new List<OpenMrsPatient>() {
@@ -65,22 +65,41 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithExpectedValues_WhenPatientFoundInOpenMrs()
         {
-            const string  patientName = "patient name";
+            const string  patientSearchedName = "patient name";
             Gender? patientGender = Gender.F;
 
             ushort?  patientYob = 1981;
             var patientEnquiry =
                 new PatientEnquiry(
                     "id", verifiedIdentifiers: null, unverifiedIdentifiers: null,
-                    patientName, patientGender, patientYob);
+                    patientSearchedName, patientGender, patientYob);
             var request = new DiscoveryRequest(patientEnquiry,"requestId", "transactionId", DateTime.Now);
             var repo = new OpenMrsPatientMatchingRepository(patientDal.Object);
 
             var patient = repo.Where(request).Result.Single();
 
-            patient.Name.Should().Be(patientName);
+            patient.Name.Should().Be(patientSearchedName);
             patient.Gender.Should().Be(patientGender);
             patient.YearOfBirth.Should().Be(patientYob);
+        }
+
+        [Fact]
+        private async void PatientRepositoryWhereQuery_ReturnsAnHIPPatientWithSearchedNameInstedOfFoundName_WhenPatientFoundInOpenMrs()
+        {
+            const string patientSearchedName = "patient name";
+            Gender? patientGender = Gender.F;
+
+            ushort? patientYob = 1981;
+            var patientEnquiry =
+                new PatientEnquiry(
+                    "id", verifiedIdentifiers: null, unverifiedIdentifiers: null,
+                    patientSearchedName, patientGender, patientYob);
+            var request = new DiscoveryRequest(patientEnquiry, "requestId", "transactionId", DateTime.Now);
+            var repo = new OpenMrsPatientMatchingRepository(patientDal.Object);
+
+            var patient = repo.Where(request).Result.Single();
+
+            patient.Name.Should().Be(patientSearchedName);
         }
     }
 }

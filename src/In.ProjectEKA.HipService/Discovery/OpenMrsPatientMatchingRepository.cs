@@ -29,7 +29,7 @@ namespace In.ProjectEKA.HipService.Discovery
                     request.Patient?.YearOfBirth?.ToString());
 
             return result
-                    .Select(p => p.ToHipPatient())
+                    .Select(p => p.ToHipPatient(request.Patient?.Name))
                     .ToList()
                     .AsQueryable();
         }
@@ -37,12 +37,12 @@ namespace In.ProjectEKA.HipService.Discovery
 
     public static class PatientExtensions
     {
-        public static Patient ToHipPatient(this Hl7.Fhir.Model.Patient openMrsPatient)
+        public static Patient ToHipPatient(this Hl7.Fhir.Model.Patient openMrsPatient, string patientSearchedName)
         {
 
             return new Patient()
             {
-                Name = openMrsPatient.Name.First().Text,
+                Name = patientSearchedName,
                 Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
                 YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year
            };
