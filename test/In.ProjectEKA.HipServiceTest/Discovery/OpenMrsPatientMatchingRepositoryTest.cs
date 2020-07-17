@@ -24,9 +24,9 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                         .LoadPatientsAsync(
                             It.IsAny<string>(),
                             It.IsAny<OpenMrsGender?>(),
-                            It.IsAny<ushort?>()))
+                            It.IsAny<string>()))
                         .Returns(
-                            (string name, OpenMrsGender? gender, ushort? yob) => {
+                            (string name, OpenMrsGender? gender, string yob) => {
                                 var humanName = new OpenMrsPatientName();
                                 humanName.Text = name;
 
@@ -58,7 +58,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
            
             var result = repo.Where(request);
 
-            patientDal.Verify( x => x.LoadPatientsAsync(patientName, openMrsGender, patientYob), Times.Once);
+            patientDal.Verify( x => x.LoadPatientsAsync(patientName, openMrsGender, patientYob.ToString()), Times.Once);
 
         }
 

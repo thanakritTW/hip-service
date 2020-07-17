@@ -26,7 +26,7 @@ namespace In.ProjectEKA.HipService.Discovery
                 await _patientDal.LoadPatientsAsync(
                     request.Patient?.Name,
                     request.Patient?.Gender.ToOpenMrsGender(),
-                    request.Patient?.YearOfBirth);
+                    request.Patient?.YearOfBirth?.ToString());
 
             return result
                     .Select(p => p.ToHipPatient())
