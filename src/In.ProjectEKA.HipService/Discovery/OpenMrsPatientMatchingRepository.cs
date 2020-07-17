@@ -39,12 +39,13 @@ namespace In.ProjectEKA.HipService.Discovery
     {
         public static Patient ToHipPatient(this Hl7.Fhir.Model.Patient openMrsPatient)
         {
+
             return new Patient()
             {
                 Name = openMrsPatient.Name.First().Text,
                 Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
-                YearOfBirth = (ushort)openMrsPatient.BirthDateElement.ToDateTimeOffset()?.Year
-            };
+                YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year
+           };
         }
     }
 }
