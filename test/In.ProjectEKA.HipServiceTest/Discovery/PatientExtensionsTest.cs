@@ -2,16 +2,14 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System;
     using FluentAssertions;
-    using HipService.Discovery;
     using HipLibrary.Patient.Model;
     using Xunit;
-    using Moq;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using OpenMrsPatient = Hl7.Fhir.Model.Patient;
     using OpenMrsPatientName = Hl7.Fhir.Model.HumanName;
     using OpenMrsGender = Hl7.Fhir.Model.AdministrativeGender;
+    using In.ProjectEKA.HipService.OpenMrs;
 
     public class PatientExtensionsTest
     {
