@@ -76,5 +76,16 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
             hipPatient.YearOfBirth.Should().Be(expectedYearOfBirth);
         }
+
+        [Theory]
+        [InlineData(Gender.M, OpenMrsGender.Male)]
+        [InlineData(Gender.F, OpenMrsGender.Female)]
+        [InlineData(Gender.O, OpenMrsGender.Other)]
+        [InlineData(Gender.U, OpenMrsGender.Unknown)]
+        [InlineData(null, null)]
+        private async void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender){
+
+            hipGender.ToOpenMrsGender().Should().Be(openMrsGender);
+        }
     }
 }

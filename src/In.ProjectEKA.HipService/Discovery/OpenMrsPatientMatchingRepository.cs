@@ -25,7 +25,7 @@ namespace In.ProjectEKA.HipService.Discovery
             var result =
                 await _patientDal.LoadPatientsAsync(
                     request.Patient?.Name,
-                    request.Patient?.Gender,
+                    request.Patient?.Gender.ToOpenMrsGender(),
                     request.Patient?.YearOfBirth);
 
             return result
@@ -46,6 +46,11 @@ namespace In.ProjectEKA.HipService.Discovery
                 Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
                 YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year
            };
+        }
+
+        public static Hl7.Fhir.Model.AdministrativeGender? ToOpenMrsGender(this Gender? gender)
+        {
+            return gender.HasValue ? (Hl7.Fhir.Model.AdministrativeGender)((int)gender) : (Hl7.Fhir.Model.AdministrativeGender?)null;
         }
     }
 }
