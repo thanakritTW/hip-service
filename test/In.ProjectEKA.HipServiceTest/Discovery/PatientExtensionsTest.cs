@@ -15,18 +15,18 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
     public class PatientExtensionsTest
     {
-        [Fact]
-        private async void ToHipPatient_GivenOpenMrsPatientWithMultipleNames_UsesTextValueFromFirstNameInCollection()
-        {
-            const string patientName = "Patient name";
+        const string patientName = "Patient name";
 
+        [Fact]
+        private async void ToHipPatient_GivenOpenMrsPatientWithMultipleNames_UsesSearchedName()
+        {
             var openMrsPatient = new OpenMrsPatient() {
-                Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = patientName }, new OpenMrsPatientName() { Text = "a second name" } },
+                Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = $"OpenMRS {patientName}" }, new OpenMrsPatientName() { Text = "a second name" } },
                 Gender = OpenMrsGender.Female,
                 BirthDate = "1981"
             };
 
-            var hipPatient = openMrsPatient.ToHipPatient();
+            var hipPatient = openMrsPatient.ToHipPatient(patientName);
 
             openMrsPatient.Name.Count().Should().Be(2);
             hipPatient.Name.Should().Be(patientName);
@@ -42,12 +42,12 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         {
 
             var openMrsPatient = new OpenMrsPatient() {
-                Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = "Patient name" } },
+                Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = patientName } },
                 Gender = sourceOpenMrsGender,
                 BirthDate = "1981"
             };
 
-            var hipPatient = openMrsPatient.ToHipPatient();
+            var hipPatient = openMrsPatient.ToHipPatient(patientName);
             
             hipPatient.Gender.Should().Be(expectedHipGender);
 
@@ -64,15 +64,13 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             // The hl7 date format is YYYY, YYYY-MM, or YYYY-MM-DD, e.g. 2018, 1973-06, or 1905-08-23. 
             // https://www.hl7.org/fhir/datatypes.html#date
 
-            const string patientName = "Patient name";
-
             var openMrsPatient = new OpenMrsPatient() {
                 Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = patientName } },
                 Gender = OpenMrsGender.Female,
                 BirthDate = sourceBirthDate
             };
 
-            var hipPatient = openMrsPatient.ToHipPatient();
+            var hipPatient = openMrsPatient.ToHipPatient(patientName);
 
             hipPatient.YearOfBirth.Should().Be(expectedYearOfBirth);
         }
