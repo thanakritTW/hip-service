@@ -90,7 +90,7 @@ namespace In.ProjectEKA.HipService
                 .Configure<DataFlowConfiguration>(Configuration.GetSection("dataFlow"))
                 .Configure<HipConfiguration>(Configuration.GetSection("hip"))
                 .AddScoped<ILinkPatientRepository, LinkPatientRepository>()
-                .AddSingleton<IMatchingRepository>(new PatientMatchingRepository("demoPatients.json"))
+                .AddSingleton<IMatchingRepository, OpenMrsPatientMatchingRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<PatientDiscovery>()
                 .AddScoped<LinkPatient>()
