@@ -44,7 +44,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 Name = patientSearchedName,
                 Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
-                YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year
+                YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year,
+                Identifier = openMrsPatient.Id
            };
         }
 

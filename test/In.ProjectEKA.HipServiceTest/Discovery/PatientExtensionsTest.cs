@@ -79,9 +79,28 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData(Gender.O, OpenMrsGender.Other)]
         [InlineData(Gender.U, OpenMrsGender.Unknown)]
         [InlineData(null, null)]
-        private async void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender){
-
+        private async void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender)
+        {
             hipGender.ToOpenMrsGender().Should().Be(openMrsGender);
+        }
+
+        [Theory]
+        [InlineData("1")]
+        [InlineData("12345678-1234-1234-1234-123456789abc")]
+        [InlineData(null)]
+        private async void ToHipPatient_GivenOpenMrsPatient_IdIsMappedToPatientId(string patientId)
+        {
+            var openMrsPatient = new OpenMrsPatient()
+            {
+                Name = new List<OpenMrsPatientName> { new OpenMrsPatientName() { Text = patientName } },
+                Gender = OpenMrsGender.Female,
+                BirthDate = "1999",
+                Id = patientId
+            };
+
+            var hipPatient = openMrsPatient.ToHipPatient(patientName);
+
+            hipPatient.Identifier.Should().Be(patientId);
         }
     }
 }
