@@ -2,6 +2,7 @@ namespace In.ProjectEKA.HipService
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IdentityModel.Tokens.Jwt;
     using System.IO;
     using System.Linq;
@@ -180,6 +181,19 @@ namespace In.ProjectEKA.HipService
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.Use(async (context, next) =>
+            {
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
+                var traceId = Guid.NewGuid();
+                Log.Information($"Request {traceId} received.");
+
+                await next.Invoke();
+
+                timer.Stop();
+                Log.Information($"Request {traceId} served in {timer.ElapsedMilliseconds}ms.");
+            });
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
