@@ -92,7 +92,7 @@ namespace In.ProjectEKA.HipService
                 .AddScoped<ILinkPatientRepository, LinkPatientRepository>()
                 .AddSingleton<IMatchingRepository, OpenMrsPatientMatchingRepository>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
-                .AddScoped<PatientDiscovery>()
+                .AddScoped<IPatientDiscovery, PatientDiscovery>()
                 .AddScoped<LinkPatient>()
                 .AddScoped<ReferenceNumberGenerator>()
                 .AddSingleton(Configuration)
