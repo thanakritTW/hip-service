@@ -63,5 +63,6 @@
     
     <ItemGroup>
       <Folder Include="OpenMrs\" />
+      <Folder Include="OpenMrs\Mappings\" />
     </ItemGroup>
 </Project>

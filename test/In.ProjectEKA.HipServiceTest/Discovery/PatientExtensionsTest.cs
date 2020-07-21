@@ -9,7 +9,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using OpenMrsPatient = Hl7.Fhir.Model.Patient;
     using OpenMrsPatientName = Hl7.Fhir.Model.HumanName;
     using OpenMrsGender = Hl7.Fhir.Model.AdministrativeGender;
-    using In.ProjectEKA.HipService.OpenMrs;
+    using In.ProjectEKA.HipService.OpenMrs.Mappings;
 
     public class PatientExtensionsTest
     {
