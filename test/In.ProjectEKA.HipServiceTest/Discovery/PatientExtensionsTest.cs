@@ -16,7 +16,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         const string patientName = "Patient name";
 
         [Fact]
-        private async void ToHipPatient_GivenOpenMrsPatientWithMultipleNames_UsesSearchedName()
+        private void ToHipPatient_GivenOpenMrsPatientWithMultipleNames_UsesSearchedName()
         {
             var openMrsPatient = new OpenMrsPatient() {
                 Name = new List<OpenMrsPatientName>{  new OpenMrsPatientName() { Text = $"OpenMRS {patientName}" }, new OpenMrsPatientName() { Text = "a second name" } },
@@ -36,7 +36,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData(OpenMrsGender.Other, Gender.O)]
         [InlineData(OpenMrsGender.Unknown, Gender.U)]
         [InlineData(null, null)]
-        private async void ToHipPatient_GivenOpenMrsPatient_GenderIsMappedCorrectly(OpenMrsGender? sourceOpenMrsGender, Gender? expectedHipGender)
+        private void ToHipPatient_GivenOpenMrsPatient_GenderIsMappedCorrectly(OpenMrsGender? sourceOpenMrsGender, Gender? expectedHipGender)
         {
 
             var openMrsPatient = new OpenMrsPatient() {
@@ -57,7 +57,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData("1973-06", (UInt16)1973)]
         [InlineData("1905-08-23", (UInt16)1905)]
         [InlineData(null, null)]
-        private async void ToHipPatient_GivenOpenMrsPatient_YearOfBirthIsCalculatedFromBirthDate(string sourceBirthDate, ushort? expectedYearOfBirth)
+        private void ToHipPatient_GivenOpenMrsPatient_YearOfBirthIsCalculatedFromBirthDate(string sourceBirthDate, ushort? expectedYearOfBirth)
         {
             // The hl7 date format is YYYY, YYYY-MM, or YYYY-MM-DD, e.g. 2018, 1973-06, or 1905-08-23. 
             // https://www.hl7.org/fhir/datatypes.html#date
@@ -79,7 +79,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData(Gender.O, OpenMrsGender.Other)]
         [InlineData(Gender.U, OpenMrsGender.Unknown)]
         [InlineData(null, null)]
-        private async void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender)
+        private void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender)
         {
             hipGender.ToOpenMrsGender().Should().Be(openMrsGender);
         }
@@ -88,7 +88,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData("1")]
         [InlineData("12345678-1234-1234-1234-123456789abc")]
         [InlineData(null)]
-        private async void ToHipPatient_GivenOpenMrsPatient_IdIsMappedToPatientId(string patientId)
+        private void ToHipPatient_GivenOpenMrsPatient_IdIsMappedToPatientId(string patientId)
         {
             var openMrsPatient = new OpenMrsPatient()
             {
