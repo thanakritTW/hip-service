@@ -1,0 +1,9 @@
+(request, state, logger) => {
+    logger.info(request.body);
+    return {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ hello: "world" })
+    };
+}

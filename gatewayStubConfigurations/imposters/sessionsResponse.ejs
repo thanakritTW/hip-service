@@ -1,0 +1,10 @@
+(request, state, logger) => {
+    logger.info("/v1/sessions is called");
+    logger.info(request.body);
+    return {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ accessToken: "RandomToken", tokenType: "" })
+    };
+  }
