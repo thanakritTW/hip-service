@@ -129,8 +129,11 @@ namespace In.ProjectEKA.HipService
                             + " and other such entities as may be identified by regulatory authorities from time to time.",
                     });
 
+                    // this is necessary to use due to we're using Newtonsoft JSON conversion until there's support for it
+                    // see article: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1269
+#pragma warning disable CS0618 // Type or member is obsolete
                     c.DescribeAllEnumsAsStrings();
-    
+#pragma warning restore CS0618 // Type or member is obsolete
 
                     // Set the comments path for the Swagger JSON and UI.
                     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
