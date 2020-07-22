@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - code-coverage
 jobs:
   build:
     runs-on: ubuntu-latest
