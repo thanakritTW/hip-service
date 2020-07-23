@@ -2,6 +2,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System.Net;
     using System.Net.Http.Headers;
+    using FluentAssertions;
     using In.ProjectEKA.HipServiceTest.Common.TestServer;
     using In.ProjectEKA.HipServiceTest.Discovery.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -34,7 +35,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     "v1/care-contexts/discover",
                     requestContent);
 
-            Assert.Equal(expectedStatusCode, response.StatusCode);
+            response.StatusCode.Should().Be(expectedStatusCode);
         }
     }
 }
