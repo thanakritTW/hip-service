@@ -34,7 +34,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData(OpenMrsGender.Male, Gender.M)]
         [InlineData(OpenMrsGender.Female, Gender.F)]
         [InlineData(OpenMrsGender.Other, Gender.O)]
-        [InlineData(OpenMrsGender.Unknown, Gender.U)]
         [InlineData(null, null)]
         private void ToHipPatient_GivenOpenMrsPatient_GenderIsMappedCorrectly(OpenMrsGender? sourceOpenMrsGender, Gender? expectedHipGender)
         {
@@ -77,7 +76,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [InlineData(Gender.M, OpenMrsGender.Male)]
         [InlineData(Gender.F, OpenMrsGender.Female)]
         [InlineData(Gender.O, OpenMrsGender.Other)]
-        [InlineData(Gender.U, OpenMrsGender.Unknown)]
         [InlineData(null, null)]
         private void ToOpenMrsGender_GivenHipGender_ConvertsToOpenMrsGender(Gender? hipGender, OpenMrsGender? openMrsGender)
         {
