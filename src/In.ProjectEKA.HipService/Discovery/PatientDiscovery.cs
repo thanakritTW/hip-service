@@ -74,7 +74,7 @@ namespace In.ProjectEKA.HipService.Discovery
                 DiscoveryUseCase.DiscoverPatient(Filter.Do(patients, request).AsQueryable());
             if (patientEnquiryRepresentation == null)
             {
-                Log.Information($"No mathcing unique patient found for transaction {request.TransactionId}.", error);
+                Log.Information($"No matching unique patient found for transaction {request.TransactionId}.", error);
                 return (null, error);
             }
 
