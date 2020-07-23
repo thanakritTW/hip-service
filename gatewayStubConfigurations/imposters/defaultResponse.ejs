@@ -1,11 +1,9 @@
 (request, state, logger) => {
     logger.info('default called for ' + request.method + ' ' + request.path);
-    state.requests = state.requests || 0;
-    state.requests += 1;
     return {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ count: state.requests })
+      body: JSON.stringify({ message: 'no mapping found for this url' })
     };
 }
