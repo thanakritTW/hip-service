@@ -22,32 +22,9 @@ services:
     ports:
       - "8080:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SERVER_OPTIONS_INLINE: |
-        {
-          "AccessTokenJwtType": "JWT",
-          "Discovery": {
-            "ShowKeySet": true
-          }
-        }
       API_SCOPES_INLINE: |
         [
           "some-app-scope-1"
-        ]
-      API_RESOURCES_INLINE: |
-        [
-          {
-            "Name": "some-app",
-            "Scopes": ["some-app-scope-1"]
-          }
-        ]
-      USERS_CONFIGURATION_INLINE: |
-        [
-          {
-            "SubjectId":"1",
-            "Username":"User1",
-            "Password":"pwd"
-          }
         ]
       CLIENTS_CONFIGURATION_PATH: /gatewayStubConfigurations/oicdConfigs/clients-config.json
     volumes:
