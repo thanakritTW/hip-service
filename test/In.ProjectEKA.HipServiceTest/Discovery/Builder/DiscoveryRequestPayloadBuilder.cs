@@ -17,10 +17,10 @@
         string _transactionId;
         string _patientId;
         string _patientName;
-        ushort? _patientYearOfBirth;
         Gender? _patientGender;
-        IEnumerable<Identifier> _verifiedIdentifiers;
-        IEnumerable<Identifier> _unverifiedIdentifiers;
+        ushort? _patientYearOfBirth;
+        IEnumerable<Identifier> _patientVerifiedIdentifiers;
+        IEnumerable<Identifier> _patientUnverifiedIdentifiers;
 
         public DiscoveryRequestPayloadBuilder WithRequestId()
         {
@@ -83,14 +83,14 @@
             _patientYearOfBirth = yearOfBirth;
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithVerifiedIdentifiers(IdentifierType type, String value)
+        public DiscoveryRequestPayloadBuilder WithVerifiedIdentifiers(IdentifierType type, string value)
         {
-            _verifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
+            _patientVerifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithUnverifiedIdentifiers(IdentifierType type, String value)
+        public DiscoveryRequestPayloadBuilder WithUnverifiedIdentifiers(IdentifierType type, string value)
         {
-            _unverifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
+            _patientUnverifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
             return this;
         }
         public DiscoveryRequestPayloadBuilder RequestedOn(DateTime requestTime)
@@ -127,16 +127,22 @@
         {
             return new DiscoveryRequest(
                 new PatientEnquiry(
-                    _patientId, _verifiedIdentifiers, _unverifiedIdentifiers,
+                    _patientId, _patientVerifiedIdentifiers, _patientUnverifiedIdentifiers,
                     _patientName, _patientGender, _patientYearOfBirth),
                 _requestId,
                 _transactionId,
-                DateTime.Now);
+                _requestTime);
         }
 
         public StringContent BuildSerializedFormat()
         {
-            var requestObject = Build();
+            var requestObject = new DiscoveryRequest(
+                new PatientEnquiry(
+                    _patientId, verifiedIdentifiers: null, unverifiedIdentifiers: null,
+                    _patientName, _patientGender, yearOfBirth: null),
+                _requestId,
+                _transactionId,
+                DateTime.Now);
             var json = JsonConvert.SerializeObject(requestObject, new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,

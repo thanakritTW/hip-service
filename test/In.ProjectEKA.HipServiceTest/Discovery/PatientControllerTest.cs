@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 namespace In.ProjectEKA.HipServiceTest.Discovery
 {
     using System;
@@ -25,12 +27,12 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         private readonly CareContextDiscoveryController careContextDiscoveryController;
         private readonly Dictionary<string, GatewayDiscoveryRepresentation> responsesSentToGateway;
         private readonly Dictionary<string, Job> backgroundJobs;
-        private DiscoveryRequestPayloadBuilder discoveryRequestBuilder;
+        
+        private static readonly User Krunal = User.Krunal;
+        private static readonly User JohnDoe = User.JohnDoe;
 
         public PatientControllerTest()
         {
-            discoveryRequestBuilder = new DiscoveryRequestPayloadBuilder();
-            
             patientDiscoveryMock = new Mock<IPatientDiscovery>();
             var gatewayClientMock = new Mock<IGatewayClient>();
             var backgroundJobClientMock = new Mock<IBackgroundJobClient>();
@@ -43,9 +45,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             SetupGatewayClientToSaveAllSentDiscoveryIntoThisList(gatewayClientMock, responsesSentToGateway);
             SetupBackgroundJobClientToSaveAllCreatedJobsIntoThisList(backgroundJobClientMock, backgroundJobs);
         }
-        
-        private static User Krunal = User.Krunal;
-        private static User JohnDoe = User.JohnDoe;
 
         [Theory]
         [InlineData(HttpStatusCode.Accepted)]
@@ -75,12 +74,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             response.StatusCode.Should().Be(expectedStatusCode);
         }
 
+        #region Describe everything that should be sent by scenario
         [Fact]
-        public async void ShouldSendStatusCode200IfPatientFound()
+        public async void ShouldSendWhenAPatientWasFound()
         {
             //Given
-            User patient = Krunal;
-
             GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
             AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
 
@@ -88,110 +86,220 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
 
             //Then
-            responsesSentToGateway.Should().ContainKey(discoveryRequest.TransactionId);
-
-            GatewayDiscoveryRepresentation actualResponse = responsesSentToGateway[discoveryRequest.TransactionId];
-
-            actualResponse.Patient.ReferenceNumber.Should().Be(patient.Id);
-            actualResponse.Patient.Display.Should().Be(patient.Name);
-            actualResponse.Patient.CareContexts.Count().Should().Be(patient.CareContexts.Count());
-            foreach (CareContextRepresentation careContext in patient.CareContexts)
-            {
-                actualResponse.Patient.CareContexts.Should().ContainEquivalentOf(careContext);
-            }
-            actualResponse.Patient.MatchedBy.Count().Should().Be(discoveryRepresentation.Patient.MatchedBy.Count());
-            foreach (var matchedFieldName in discoveryRepresentation.Patient.MatchedBy)
-            {
-                actualResponse.Patient.MatchedBy.Should().ContainEquivalentOf(matchedFieldName);
-            }
-
-            actualResponse.TransactionId.Should().Be(discoveryRequest.TransactionId);
-
-            actualResponse.Resp.RequestId.Should().Be(discoveryRequest.RequestId);
-            actualResponse.Resp.StatusCode.Should().Be(HttpStatusCode.OK);
-            actualResponse.Resp.Message.Should().Be("Patient record with one or more care contexts found");
-
-            actualResponse.Error.Should().BeNull();
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheSentResponseShouldContainTheFoundPatient(actualResponse, discoveryRepresentation.Patient);
+            AndTheResponseShouldContainTheMatchFields(actualResponse, discoveryRepresentation.Patient.MatchedBy.ToList());
+            AndTheResponseShouldContainTheTransactionId(actualResponse, discoveryRequest);
+            AndTheResponseShouldContainTheExpectedStatus(actualResponse, discoveryRequest, HttpStatusCode.OK, "Patient record with one or more care contexts found");
+            AndTheResponseShouldNotContainAnyError(actualResponse);
         }
 
-        [Fact]
-        public async void ShouldSendStatusCode404WhenNoPatientWasFound()
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound, HttpStatusCode.NotFound, "No Matching Record Found or More than one Record Found")]
+        [InlineData(ErrorCode.MultiplePatientsFound, HttpStatusCode.NotFound, "No Matching Record Found or More than one Record Found")]
+        public async void ShouldSendWhenNoSingleMatchWasFound(ErrorCode errorCode, HttpStatusCode expectedStatusCode, string expectedResponseDescription)
         {
             //Given
             GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
-            AndThePatientDoesNotMatchAnyRegisteredPatient(out ErrorRepresentation errorRepresentation);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
 
             //When
             await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
 
             //Then
-            responsesSentToGateway.Should().ContainKey(discoveryRequest.TransactionId);
-
-            GatewayDiscoveryRepresentation actualResponse = responsesSentToGateway[discoveryRequest.TransactionId];
-
-            actualResponse.Patient.Should().BeNull();
-
-            actualResponse.TransactionId.Should().Be(discoveryRequest.TransactionId);
-
-            actualResponse.Resp.RequestId.Should().Be(discoveryRequest.RequestId);
-            actualResponse.Resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            actualResponse.Resp.Message.Should().Be("No Matching Record Found or More than one Record Found");
-
-            actualResponse.Error.Code.Should().Be(ErrorCode.NoPatientFound);
-            actualResponse.Error.Message.Should().Be(errorRepresentation.Error.Message);
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldNotContainAnyPatientDetails(actualResponse);
+            AndTheResponseShouldNotContainAyMatchFields(actualResponse);
+            AndTheResponseShouldContainTheTransactionId(actualResponse, discoveryRequest);
+            AndTheResponseShouldContainTheExpectedStatus(actualResponse, discoveryRequest, expectedStatusCode, expectedResponseDescription);
+            AndTheResponseShouldContainTheErrorDetails(actualResponse, errorRepresentation);
         }
 
         [Fact]
-        public async void ShouldSendStatusCode404WhenMultiplePatientWereFound()
-        {
-            //Given
-            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
-            AndThePatientMatchMultipleRegisteredPatient(out ErrorRepresentation errorRepresentation);
-
-            //When
-            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
-
-            //Then
-            responsesSentToGateway.Should().ContainKey(discoveryRequest.TransactionId);
-            var actualResponse = responsesSentToGateway[discoveryRequest.TransactionId];
-
-            actualResponse.Patient.Should().BeNull();
-
-            actualResponse.TransactionId.Should().Be(discoveryRequest.TransactionId);
-
-            actualResponse.Resp.RequestId.Should().Be(discoveryRequest.RequestId);
-            actualResponse.Resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            actualResponse.Resp.Message.Should().Be("No Matching Record Found or More than one Record Found");
-
-            actualResponse.Error.Code.Should().Be(ErrorCode.MultiplePatientsFound);
-            actualResponse.Error.Message.Should().Be(errorRepresentation.Error.Message);
-        }
-
-        [Fact]
-        public async void ShouldSendStatusCode500WhenBahmniIsDownOrAnExternalSystem()
+        public async void ShouldSendBahmniIsDownOrAnExternalSystem()
         {
             //Given
             GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
-            ButTheDataSourceIsNotReachable();
+            ButTheDataSourceIsNotReachable(out ErrorRepresentation errorRepresentation);
 
             //When
             await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
 
             //Then
-            responsesSentToGateway.Should().ContainKey(discoveryRequest.TransactionId);
-            var actualResponse = responsesSentToGateway[discoveryRequest.TransactionId];
-            actualResponse.Patient.Should().BeNull();
-
-            actualResponse.TransactionId.Should().Be(discoveryRequest.TransactionId);
-
-            actualResponse.Resp.RequestId.Should().Be(discoveryRequest.RequestId);
-            actualResponse.Resp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            actualResponse.Resp.Message.Should().Be("Unreachable external service");
-
-            actualResponse.Error.Code.Should().Be(ErrorCode.ServerInternalError);
-            actualResponse.Error.Message.Should().Be("Unreachable external service");
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldNotContainAnyPatientDetails(actualResponse);
+            AndTheResponseShouldNotContainAyMatchFields(actualResponse);
+            AndTheResponseShouldContainTheTransactionId(actualResponse, discoveryRequest);
+            AndTheResponseShouldContainTheExpectedStatus(actualResponse, discoveryRequest, HttpStatusCode.InternalServerError, "Unreachable external service");
+            AndTheResponseShouldContainTheErrorDetails(actualResponse, errorRepresentation);
         }
+        #endregion
+    
+        #region Unit block when a user find its record
+        [Fact]
+        public async void ShouldSendTheFoundPatientDetailsWhenAPatientWasFound()
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
+            AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
 
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheSentResponseShouldContainTheFoundPatient(actualResponse, discoveryRepresentation.Patient);
+        }
+        
+        [Fact]
+        public async void ShouldSendTheListOfMatchedFieldsWhenAPatientWasFound()
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
+            AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheMatchFields(actualResponse, discoveryRepresentation.Patient.MatchedBy.ToList());
+        }
+        
+        [Fact]
+        public async void ShouldSendTheTransactionIdWhenAPatientWasFound()
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
+            AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheTransactionId(actualResponse, discoveryRequest);
+        }
+        
+        [Fact]
+        public async void ShouldSendTheResponseStatusWith200WhenAPatientWasFound()
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
+            AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheExpectedStatus(actualResponse, discoveryRequest, HttpStatusCode.OK, "Patient record with one or more care contexts found");
+        }
+        
+        [Fact]
+        public async void ShouldNotSendAnyErrorWhenAPatientWasFound()
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
+            AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldNotContainAnyError(actualResponse);
+        }
+        #endregion
+        
+        #region Unit block when a user do not find his record
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound)]
+        [InlineData(ErrorCode.MultiplePatientsFound)]
+        public async void ShouldNotSendFoundPatientDetailsWhenNoPatientWasFound(ErrorCode errorCode)
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldNotContainAnyPatientDetails(actualResponse);
+        }
+        
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound)]
+        [InlineData(ErrorCode.MultiplePatientsFound)]
+        public async void ShouldNotSendAnyMatchedFieldWhenNoPatientWasFound(ErrorCode errorCode)
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldNotContainAyMatchFields(actualResponse);
+        }
+        
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound)]
+        [InlineData(ErrorCode.MultiplePatientsFound)]
+        public async void ShouldSendTransactionIdEvenWhenNoPatientWasFound(ErrorCode errorCode)
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheTransactionId(actualResponse, discoveryRequest);
+        }
+        
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound, HttpStatusCode.NotFound, "No Matching Record Found or More than one Record Found")]
+        [InlineData(ErrorCode.MultiplePatientsFound, HttpStatusCode.NotFound, "No Matching Record Found or More than one Record Found")]
+        public async void ShouldSendRequestStatusWith404WhenNoPatientWasFound(ErrorCode errorCode, HttpStatusCode expectedStatusCode, string expectedResponseDescription)
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheExpectedStatus(actualResponse, discoveryRequest, expectedStatusCode, expectedResponseDescription);
+        }
+        
+        [Theory]
+        [InlineData(ErrorCode.NoPatientFound)]
+        [InlineData(ErrorCode.MultiplePatientsFound)]
+        public async void ShouldSendTheErrorDetailsWhenNoPatientWasFound(ErrorCode errorCode)
+        {
+            //Given
+            GivenAPatientStartedANewDiscoveryRequest(JohnDoe, out DiscoveryRequest discoveryRequest);
+            AndTheUserDoesNotMatchAnyPatientBecauseOf(errorCode, out ErrorRepresentation errorRepresentation);
+
+            //When
+            await careContextDiscoveryController.GetPatientCareContext(discoveryRequest);
+
+            //Then
+            ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(discoveryRequest, out GatewayDiscoveryRepresentation actualResponse);
+            AndTheResponseShouldContainTheErrorDetails(actualResponse, errorRepresentation);
+        }
+        #endregion
+
+        #region Ensure the job will be triggered by the background worker
         [Fact]
         public async void ShouldAddTheDiscoveryTaskToTheBackgroundJobList()
         {
@@ -205,10 +313,13 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             backgroundJobs.Should().ContainKey("GetPatientCareContext");
             ((DiscoveryRequest)backgroundJobs["GetPatientCareContext"].Args.First()).Should().BeSameAs(discoveryRequest);
         }
+        #endregion
 
-        private void GivenAPatientStartedANewDiscoveryRequest(User user, out DiscoveryRequest discoveryRequest)
+        
+        #region Given
+        private static void GivenAPatientStartedANewDiscoveryRequest(User user, out DiscoveryRequest discoveryRequest)
         {
-            discoveryRequest = discoveryRequestBuilder
+            discoveryRequest = new DiscoveryRequestPayloadBuilder()
                 .FromUser(user)
                 .WithRequestId("aRequestId")
                 .WithTransactionId("aTransactionId")
@@ -234,7 +345,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             discoveryRepresentation = discovery;
         }
 
-        private void AndThePatientDoesNotMatchAnyRegisteredPatient(out ErrorRepresentation errorRepresentation)
+        private void AndTheUserDoesNotMatchAnyPatientBecauseOf(ErrorCode errorCode, out ErrorRepresentation errorRepresentation)
         {
             var error = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "unusedMessage"));
 
@@ -245,23 +356,87 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             errorRepresentation = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "unusedMessage"));
         }
 
-        private void AndThePatientMatchMultipleRegisteredPatient(out ErrorRepresentation errorRepresentation)
-        {
-            var error = new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "unusedMessage"));
-            patientDiscoveryMock
-                .Setup(patientDiscovery => patientDiscovery.PatientFor(It.IsAny<DiscoveryRequest>()))
-                .Returns(async () => (null, error));
-
-            errorRepresentation = error;
-        }
-
-        private void ButTheDataSourceIsNotReachable()
+        private void ButTheDataSourceIsNotReachable(out ErrorRepresentation errorRepresentation)
         {
             patientDiscoveryMock
                 .Setup(patientDiscovery => patientDiscovery.PatientFor(It.IsAny<DiscoveryRequest>()))
                 .Returns(async () => throw new Exception("Exception coming from tests"));
+            
+            errorRepresentation = new ErrorRepresentation(new Error(ErrorCode.ServerInternalError, "Unreachable external service"));
+        }
+        #endregion
+
+        #region Then
+        private void ThenAResponseToThisTransactionShouldHaveBeenSentToTheGateway(
+            DiscoveryRequest discoveryRequest,
+            out GatewayDiscoveryRepresentation actualResponse)
+        {
+            responsesSentToGateway.Should().ContainKey(discoveryRequest.TransactionId);
+
+            actualResponse = responsesSentToGateway[discoveryRequest.TransactionId];
         }
 
+        private static void AndTheSentResponseShouldContainTheFoundPatient(GatewayDiscoveryRepresentation actualResponse,
+            PatientEnquiryRepresentation patientEnquiry)
+        {
+            actualResponse.Patient.ReferenceNumber.Should().Be(patientEnquiry.ReferenceNumber);
+            actualResponse.Patient.Display.Should().Be(patientEnquiry.Display);
+            actualResponse.Patient.CareContexts.Count().Should().Be(patientEnquiry.CareContexts.Count());
+            foreach (CareContextRepresentation careContext in patientEnquiry.CareContexts)
+            {
+                actualResponse.Patient.CareContexts.Should().ContainEquivalentOf(careContext);
+            }
+        }
+
+        private static void AndTheResponseShouldNotContainAnyPatientDetails(GatewayDiscoveryRepresentation actualResponse)
+        {
+            actualResponse.Patient.Should().BeNull();
+        }
+
+        private static void AndTheResponseShouldContainTheMatchFields(GatewayDiscoveryRepresentation actualResponse,
+            ICollection<string> matchedFields)
+        {
+            actualResponse.Patient.MatchedBy.Count().Should().Be(matchedFields.Count);
+            foreach (var matchedFieldName in matchedFields)
+            {
+                actualResponse.Patient.MatchedBy.Should().ContainEquivalentOf(matchedFieldName);
+            }
+        }
+
+        private static void AndTheResponseShouldNotContainAyMatchFields(GatewayDiscoveryRepresentation actualResponse)
+        {
+            actualResponse.Patient.Should().BeNull();
+        }
+
+        private static void AndTheResponseShouldContainTheTransactionId(GatewayDiscoveryRepresentation actualResponse,
+            DiscoveryRequest discoveryRequest)
+        {
+            actualResponse.TransactionId.Should().Be(discoveryRequest.TransactionId);
+        }
+
+        private static void AndTheResponseShouldContainTheErrorDetails(GatewayDiscoveryRepresentation actualResponse,
+            ErrorRepresentation errorRepresentation)
+        {
+            actualResponse.Error.Code.Should().Be(errorRepresentation.Error.Code);
+            actualResponse.Error.Message.Should().Be(errorRepresentation.Error.Message);
+        }
+
+        private static void AndTheResponseShouldNotContainAnyError(GatewayDiscoveryRepresentation actualResponse)
+        {
+            actualResponse.Error.Should().BeNull();
+        }
+
+        private static void AndTheResponseShouldContainTheExpectedStatus(GatewayDiscoveryRepresentation actualResponse, 
+            DiscoveryRequest discoveryRequest, HttpStatusCode expectedStatusCode, string expectedMessage)
+        {
+            
+            actualResponse.Resp.RequestId.Should().Be(discoveryRequest.RequestId);
+            actualResponse.Resp.StatusCode.Should().Be(expectedStatusCode);
+            actualResponse.Resp.Message.Should().Be(expectedMessage);
+        }
+        #endregion
+
+        #region SetUp
         private static void SetupGatewayClientToSaveAllSentDiscoveryIntoThisList(Mock<IGatewayClient> gatewayClientMock,
             Dictionary<string, GatewayDiscoveryRepresentation> responsesSentToGateway)
         {
@@ -283,5 +458,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .Setup(s => s.Create(It.IsAny<Job>(), It.IsAny<IState>()))
                 .Callback<Job, IState>((job, state) => { backgroundJobs.Add(job.Method.Name, job); });
         }
+        #endregion
     }
 }

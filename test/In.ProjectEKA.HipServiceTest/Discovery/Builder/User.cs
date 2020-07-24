@@ -3,13 +3,13 @@ using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipServiceTest.Discovery.Builder
 {
-    public class User
+    public struct User
     {
-        public string Name { get; set; }
-        public string Id { get; set; }
-        public Gender Gender { get; set; }
-        public ushort YearOfBirth { get; set; }
-        public string PhoneNumber { get; set; } = null;
+        public string Name { get; private set; }
+        public string Id { get; private set; }
+        public Gender Gender { get; private set; }
+        public ushort YearOfBirth { get; private set; }
+        public string PhoneNumber { get; private set; }
         public IEnumerable<CareContextRepresentation> CareContexts { get; set; }
 
         public static readonly User Krunal = new User
@@ -32,17 +32,5 @@ namespace In.ProjectEKA.HipServiceTest.Discovery.Builder
             CareContexts = null,
             PhoneNumber = "11111111111"
         };
-
-        public static readonly User Linda = new User
-        {
-            Name = "Linda",
-            Id = "5678",
-            Gender = Gender.F,
-            YearOfBirth = 1972,
-            CareContexts = null,
-            PhoneNumber = "99999999999"
-        };
-
-
     }
 }
