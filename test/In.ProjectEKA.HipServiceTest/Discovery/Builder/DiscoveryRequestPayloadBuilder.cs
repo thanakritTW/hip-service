@@ -9,7 +9,7 @@
     using HipLibrary.Patient.Model;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
-
+    using static Builder.TestBuilders;
     public class DiscoveryRequestPayloadBuilder
     {
         string _requestId;
@@ -83,14 +83,14 @@
             _patientYearOfBirth = yearOfBirth;
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithVerifiedIdentifiers(IEnumerable<Identifier> verifiedIdentifiers)
+        public DiscoveryRequestPayloadBuilder WithVerifiedIdentifiers(IdentifierType type, String value)
         {
-            _verifiedIdentifiers = verifiedIdentifiers;
+            _verifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithUnverifiedIdentifiers(IEnumerable<Identifier> unverifiedIdentifiers)
+        public DiscoveryRequestPayloadBuilder WithUnverifiedIdentifiers(IdentifierType type, String value)
         {
-            _unverifiedIdentifiers = unverifiedIdentifiers;
+            _unverifiedIdentifiers = new List<Identifier> { new Identifier(type, value) };
             return this;
         }
         public DiscoveryRequestPayloadBuilder RequestedOn(DateTime requestTime)

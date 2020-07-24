@@ -184,32 +184,15 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private DiscoveryRequest BuildDiscoveryRequest(string name, Gender? gender, string phoneNumber, ushort? yearOfBirth = null)
         {
-            var verifiedIdentifiers = Identifier()
-                   .GenerateLazy(0)
-                   .Select(builder => builder.Build())
-                   .Append(new IdentifierBuilder
-                   {
-                       Type = IdentifierType.MOBILE,
-                       Value = phoneNumber
-                   }.Build());
-            var unverifiedIdentifiers = Identifier()
-                .GenerateLazy(0)
-                .Select(builder => builder.Build())
-                .Append(new IdentifierBuilder
-                {
-                    Type = IdentifierType.MOBILE,
-                    Value = phoneNumber
-                }.Build());
-
             return new DiscoveryRequestPayloadBuilder()
                 .WithPatientId(Faker().Random.Hash())
                 .WithPatientName(name)
                 .WithPatientYearOfBirth(yearOfBirth)
                 .WithPatientGender(gender)
+                .WithVerifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)
+                .WithUnverifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)  
                 .WithRequestId(Faker().Random.String())
                 .WithTransactionId(RandomString())
-                .WithVerifiedIdentifiers(verifiedIdentifiers)
-                .WithUnverifiedIdentifiers(unverifiedIdentifiers)
                 .RequestedOn(DateTime.Now)
                 .Build();
         }
