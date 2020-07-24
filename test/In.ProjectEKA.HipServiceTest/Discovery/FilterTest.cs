@@ -21,7 +21,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
         private class John
         {
-            public const string Name = "John";
+            public const string Name = "John Doe";
             public const Gender Sex = Gender.M;
             public const string PhoneNumber = "11111111111";
             public const ushort YearOfBirth = 1994;
@@ -189,9 +189,9 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 .WithPatientName(name)
                 .WithPatientYearOfBirth(yearOfBirth)
                 .WithPatientGender(gender)
+                .WithRequestId(Faker().Random.String())
                 .WithVerifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)
                 .WithUnverifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)  
-                .WithRequestId(Faker().Random.String())
                 .WithTransactionId(RandomString())
                 .RequestedOn(DateTime.Now)
                 .Build();
