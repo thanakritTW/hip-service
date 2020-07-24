@@ -9,7 +9,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using Xunit;
     using static Builder.TestBuilders;
 
-
     [Collection("Patient Filter Tests")]
     public class FilterTest
     {

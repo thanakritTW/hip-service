@@ -25,13 +25,16 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         private readonly CareContextDiscoveryController careContextDiscoveryController;
         private readonly Dictionary<string, GatewayDiscoveryRepresentation> responsesSentToGateway;
         private readonly Dictionary<string, Job> backgroundJobs;
-
+        private DiscoveryRequestPayloadBuilder discoveryRequestBuilder;
 
         public PatientControllerTest()
         {
+            discoveryRequestBuilder = new DiscoveryRequestPayloadBuilder();
+            
             patientDiscoveryMock = new Mock<IPatientDiscovery>();
             var gatewayClientMock = new Mock<IGatewayClient>();
             var backgroundJobClientMock = new Mock<IBackgroundJobClient>();
+            
             responsesSentToGateway = new Dictionary<string, GatewayDiscoveryRepresentation>();
             backgroundJobs = new Dictionary<string, Job>();
 
@@ -40,6 +43,9 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             SetupGatewayClientToSaveAllSentDiscoveryIntoThisList(gatewayClientMock, responsesSentToGateway);
             SetupBackgroundJobClientToSaveAllCreatedJobsIntoThisList(backgroundJobClientMock, backgroundJobs);
         }
+        
+        private static User Krunal = User.Krunal;
+        private static User JohnDoe = User.JohnDoe;
 
         [Theory]
         [InlineData(HttpStatusCode.Accepted)]
@@ -59,7 +65,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
             var requestContent = new DiscoveryRequestPayloadBuilder()
                 .WithMissingParameters(missingRequestParameters)
-                .Build();
+                .BuildSerializedFormat();
 
             var response =
                 await _client.PostAsync(
@@ -69,39 +75,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             response.StatusCode.Should().Be(expectedStatusCode);
         }
 
-        private struct Patient
-        {
-            public string Name { get; set; }
-            public string Id { get; set; }
-            public Gender Gender { get; set; }
-            public ushort YearOfBirth { get; set; }
-            public IEnumerable<CareContextRepresentation> CareContexts { get; set; }
-        }
-        private static readonly Patient Krunal = new Patient
-        {
-            Name = "Krunal Patel",
-            Id = "RVH1111",
-            Gender = Gender.M,
-            YearOfBirth = 1976,
-            CareContexts = new List<CareContextRepresentation> {
-                new CareContextRepresentation("NCP1111", "National Cancer program"),
-                new CareContextRepresentation("NCP1111", "National Cancer program - Episode 2")
-            }
-        };
-        private static readonly Patient JohnDoe = new Patient
-        {
-            Name = "John Doe",
-            Id = "1234",
-            Gender = Gender.M,
-            YearOfBirth = 1970,
-            CareContexts = null
-        };
-
         [Fact]
         public async void ShouldSendStatusCode200IfPatientFound()
         {
             //Given
-            Patient patient = Krunal;
+            User patient = Krunal;
 
             GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
             AndThisPatientMatchASingleRegisteredPatient(Krunal, new []{"name", "gender"}, out DiscoveryRepresentation discoveryRepresentation);
@@ -190,7 +168,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        public async void ShouldSendStatusCode500WhenBahmniIsDownOrAntExternalSystem()
+        public async void ShouldSendStatusCode500WhenBahmniIsDownOrAnExternalSystem()
         {
             //Given
             GivenAPatientStartedANewDiscoveryRequest(Krunal, out DiscoveryRequest discoveryRequest);
@@ -228,21 +206,17 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             ((DiscoveryRequest)backgroundJobs["GetPatientCareContext"].Args.First()).Should().BeSameAs(discoveryRequest);
         }
 
-        private static void GivenAPatientStartedANewDiscoveryRequest(Patient patient, out DiscoveryRequest discoveryRequest)
+        private void GivenAPatientStartedANewDiscoveryRequest(User user, out DiscoveryRequest discoveryRequest)
         {
-            var patientEnquiry = new PatientEnquiry(
-                patient.Id,
-                new List<Identifier>(),
-                new List<Identifier>(),
-                patient.Name,
-                patient.Gender,
-                patient.YearOfBirth
-            );
-            var anyRequestDateTime = new DateTime(2020, 06, 14);
-            discoveryRequest = new DiscoveryRequest(patientEnquiry, "aRequestId", "aTransactionId", anyRequestDateTime);
+            discoveryRequest = discoveryRequestBuilder
+                .FromUser(user)
+                .WithRequestId("aRequestId")
+                .WithTransactionId("aTransactionId")
+                .RequestedOn(new DateTime(2020, 06, 14))
+                .Build();
         }
 
-        private void AndThisPatientMatchASingleRegisteredPatient(Patient patient, IEnumerable<string> matchBy, out DiscoveryRepresentation discoveryRepresentation)
+        private void AndThisPatientMatchASingleRegisteredPatient(User patient, IEnumerable<string> matchBy, out DiscoveryRepresentation discoveryRepresentation)
         {
             var discovery = new DiscoveryRepresentation(
                 new PatientEnquiryRepresentation(
