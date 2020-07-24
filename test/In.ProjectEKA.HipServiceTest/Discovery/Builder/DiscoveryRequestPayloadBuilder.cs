@@ -1,6 +1,7 @@
 ﻿namespace In.ProjectEKA.HipServiceTest.Discovery.Builder
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Net.Mime;
@@ -16,8 +17,10 @@
         string _transactionId;
         string _patientId;
         string _patientName;
-        ushort _patientYearOfBirth;
+        ushort? _patientYearOfBirth;
         Gender? _patientGender;
+        IEnumerable<Identifier> _verifiedIdentifiers;
+        IEnumerable<Identifier> _unverifiedIdentifiers;
 
         public DiscoveryRequestPayloadBuilder WithRequestId()
         {
@@ -54,7 +57,7 @@
         {
             _patientId = userId;
             return this;
-        } 
+        }
         public DiscoveryRequestPayloadBuilder WithPatientName()
         {
             _patientName = "chandler bing";
@@ -70,14 +73,24 @@
             _patientGender = Gender.M;
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithPatientGender(Gender userGender)
+        public DiscoveryRequestPayloadBuilder WithPatientGender(Gender? userGender)
         {
             _patientGender = userGender;
             return this;
         }
-        public DiscoveryRequestPayloadBuilder WithPatientYearOfBirth(ushort yearOfBirth)
+        public DiscoveryRequestPayloadBuilder WithPatientYearOfBirth(ushort? yearOfBirth)
         {
             _patientYearOfBirth = yearOfBirth;
+            return this;
+        }
+        public DiscoveryRequestPayloadBuilder WithVerifiedIdentifiers(IEnumerable<Identifier> verifiedIdentifiers)
+        {
+            _verifiedIdentifiers = verifiedIdentifiers;
+            return this;
+        }
+        public DiscoveryRequestPayloadBuilder WithUnverifiedIdentifiers(IEnumerable<Identifier> unverifiedIdentifiers)
+        {
+            _unverifiedIdentifiers = unverifiedIdentifiers;
             return this;
         }
         public DiscoveryRequestPayloadBuilder RequestedOn(DateTime requestTime)
@@ -109,13 +122,13 @@
 
             return this;
         }
-        
+
         public DiscoveryRequest Build()
         {
             return new DiscoveryRequest(
                 new PatientEnquiry(
-                    _patientId, verifiedIdentifiers: null, unverifiedIdentifiers: null,
-                    _patientName, _patientGender, yearOfBirth: null),
+                    _patientId, _verifiedIdentifiers, _unverifiedIdentifiers,
+                    _patientName, _patientGender, _patientYearOfBirth),
                 _requestId,
                 _transactionId,
                 DateTime.Now);

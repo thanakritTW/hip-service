@@ -200,16 +200,18 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     Type = IdentifierType.MOBILE,
                     Value = phoneNumber
                 }.Build());
-            return new DiscoveryRequest(
-                new PatientEnquiry(Faker().Random.Hash(),
-                    verifiedIdentifiers,
-                    unverifiedIdentifiers,
-                    name,
-                    gender,
-                    yearOfBirth),
-                Faker().Random.String(),
-                RandomString(),
-                DateTime.Now);
+
+            return new DiscoveryRequestPayloadBuilder()
+                .WithPatientId(Faker().Random.Hash())
+                .WithPatientName(name)
+                .WithPatientYearOfBirth(yearOfBirth)
+                .WithPatientGender(gender)
+                .WithRequestId(Faker().Random.String())
+                .WithTransactionId(RandomString())
+                .WithVerifiedIdentifiers(verifiedIdentifiers)
+                .WithUnverifiedIdentifiers(unverifiedIdentifiers)
+                .RequestedOn(DateTime.Now)
+                .Build();
         }
 
         private Patient BuildLinda()
