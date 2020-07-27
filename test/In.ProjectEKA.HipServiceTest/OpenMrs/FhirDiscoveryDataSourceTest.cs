@@ -14,8 +14,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public const string OnPatientPath = "ws/fhir2/Patient";
     }
 
-    [Collection("Discovery Data Source Tests")]
-    public class DiscoveryDataSourceTest
+    [Collection("Fhir Discovery Data Source Tests")]
+    public class FhirDiscoveryDataSourceTest
     {
         [Fact]
         public async System.Threading.Tasks.Task ShouldReturnListOfPatientDto()

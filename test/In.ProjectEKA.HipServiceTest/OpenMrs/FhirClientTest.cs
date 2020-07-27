@@ -11,8 +11,8 @@ using Xunit;
 
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
-    [Collection("Gateway Client Tests")]
-    public class OpenMrsClientTest
+    [Collection("Fhir Gateway Client Tests")]
+    public class FhirClientTest
     {
         [Fact(Skip="it is a real call and needs local setup")]
         [Trait("Category", "Infrastructure")]
