@@ -8,12 +8,12 @@ using In.ProjectEKA.HipService.Logger;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
-    public class OpenMrsClient: IOpenMrsClient
+    public class FhirClient: IOpenMrsClient
     {
         private readonly HttpClient httpClient;
         private readonly OpenMrsConfiguration configuration;
 
-        public OpenMrsClient(HttpClient httpClient, OpenMrsConfiguration openMrsConfiguration)
+        public FhirClient(HttpClient httpClient, OpenMrsConfiguration openMrsConfiguration)
         {
             this.httpClient = httpClient;
             configuration = openMrsConfiguration;

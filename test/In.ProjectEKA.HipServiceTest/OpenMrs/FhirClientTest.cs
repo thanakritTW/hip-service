@@ -30,7 +30,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Username = "someusername",
                 Password = "somepassword"
             };
-            var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
+            var openmrsClient = new FhirClient(httpClient, openmrsConfiguration);
             //When
             var response = await openmrsClient.GetAsync("ws/fhir2/Patient");
             //Then
@@ -50,7 +50,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Username = "someusername",
                 Password = "somepassword"
             };
-            var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
+            var openmrsClient = new FhirClient(httpClient, openmrsConfiguration);
             handlerMock
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -82,7 +82,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Username = "someusername",
                 Password = "somepassword"
             };
-            var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
+            var openmrsClient = new FhirClient(httpClient, openmrsConfiguration);
             handlerMock
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -112,7 +112,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Username = "someusername",
                 Password = "somepassword"
             };
-            var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
+            var openmrsClient = new FhirClient(httpClient, openmrsConfiguration);
 
             var wasCalledWithTheRightUri = false;
             handlerMock

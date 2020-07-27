@@ -22,7 +22,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new DiscoveryDataSource(openmrsClientMock.Object);
+            var discoveryDataSource = new FhirDiscoveryDataSource(openmrsClientMock.Object);
 
             openmrsClientMock
                 .Setup(x => x.GetAsync(ExpectedDiscoveryPathConstants.OnPatientPath))
@@ -52,7 +52,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var openMrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new DiscoveryDataSource(openMrsClientMock.Object);
+            var discoveryDataSource = new FhirDiscoveryDataSource(openMrsClientMock.Object);
 
             openMrsClientMock
                 .Setup(x => x.GetAsync(ExpectedDiscoveryPathConstants.OnPatientPath))
@@ -75,7 +75,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new DiscoveryDataSource(openmrsClientMock.Object);
+            var discoveryDataSource = new FhirDiscoveryDataSource(openmrsClientMock.Object);
 
             openmrsClientMock
                 .Setup(x => x.GetAsync(ExpectedDiscoveryPathConstants.OnPatientPath))
@@ -114,7 +114,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new DiscoveryDataSource(openmrsClientMock.Object);
+            var discoveryDataSource = new FhirDiscoveryDataSource(openmrsClientMock.Object);
 
             openmrsClientMock
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
@@ -150,8 +150,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Username = "someusername",
                 Password = "somepassword"
             };
-            var openmrsClient = new OpenMrsClient(httpClient, openmrsConfiguration);
-            var discoveryDataSource = new DiscoveryDataSource(openmrsClient);
+            var openmrsClient = new FhirClient(httpClient, openmrsConfiguration);
+            var discoveryDataSource = new FhirDiscoveryDataSource(openmrsClient);
             //When
             var patients = await discoveryDataSource.LoadPatientsAsync(null, null, null);
             //Then

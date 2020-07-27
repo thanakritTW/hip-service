@@ -110,10 +110,10 @@ namespace In.ProjectEKA.HipService
                 .AddSingleton(new GatewayClient(HttpClient,
                     Configuration.GetSection("Gateway").Get<GatewayConfiguration>()))
                 .AddSingleton(Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>())
-                .AddSingleton(new OpenMrsClient(HttpClient,
+                .AddSingleton(new FhirClient(HttpClient,
                     Configuration.GetSection("OpenMrs").Get<OpenMrsConfiguration>()))
-                .AddScoped<IOpenMrsClient, OpenMrsClient>()
-                .AddScoped<IPatientDal, DiscoveryDataSource>()
+                .AddScoped<IOpenMrsClient, FhirClient>()
+                .AddScoped<IPatientDal, FhirDiscoveryDataSource>()
                 .AddTransient<IDataFlow, DataFlow.DataFlow>()
                 .AddRouting(options => options.LowercaseUrls = true)
                 .AddSwaggerGen(c =>
