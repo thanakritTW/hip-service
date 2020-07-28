@@ -1,0 +1,60 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using In.ProjectEKA.HipLibrary.Patient.Model;
+using Patient = Hl7.Fhir.Model.Patient;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
+namespace In.ProjectEKA.HipService.OpenMrs
+{
+    public class OpenMrsDiscoveryDataSource : IPatientDal
+    {
+        private readonly IOpenMrsClient openMrsClient;
+        public OpenMrsDiscoveryDataSource(IOpenMrsClient openMrsClient)
+        {
+            this.openMrsClient = openMrsClient;
+        }
+
+        public async Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, string yearOfBirth)
+        {
+            return null;
+        }
+
+        public async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
+        {
+            var path = DiscoveryPathConstants.OnProgramEnrollmentPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(uuid))
+            {
+                query["patient"] = uuid;
+            }
+            if (query.ToString() != "")
+            {
+                path = $"{path}/?{query}";
+            }
+
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var jsonDoc = JsonDocument.Parse(content);
+            var root = jsonDoc.RootElement;
+
+            var careContexts = new List<CareContextRepresentation>();
+            var results = root.GetProperty("results");
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var attributes = results[i].GetProperty("attributes");
+                var referenceNumber = attributes[0].GetProperty("value").GetString();
+                var display = results[i].GetProperty("display").GetString();
+                careContexts.Add(new CareContextRepresentation(referenceNumber, display));
+            }
+
+            return careContexts;
+            // return null;
+        }
+    }
+}
