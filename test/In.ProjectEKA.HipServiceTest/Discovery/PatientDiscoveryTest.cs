@@ -16,7 +16,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using Xunit;
     using Match = HipLibrary.Patient.Model.Match;
     using static Builder.TestBuilders;
-    using In.ProjectEKA.HipService.OpenMrs;
 
     public class PatientDiscoveryTest
     {

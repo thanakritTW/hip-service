@@ -7,10 +7,9 @@ namespace In.ProjectEKA.HipService.Discovery
     using HipLibrary.Matcher;
     using HipLibrary.Patient;
     using HipLibrary.Patient.Model;
-    using Link;
     using In.ProjectEKA.HipService.Link.Model;
+    using Link;
     using Logger;
-    using In.ProjectEKA.HipService.OpenMrs;
 
     public class PatientDiscovery: IPatientDiscovery
     {

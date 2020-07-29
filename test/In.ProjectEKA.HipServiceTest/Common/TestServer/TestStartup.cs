@@ -8,7 +8,6 @@
     using In.ProjectEKA.HipService.Discovery;
     using In.ProjectEKA.HipService.Gateway;
     using In.ProjectEKA.HipService.Link;
-    using In.ProjectEKA.HipService.OpenMrs;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 
-namespace In.ProjectEKA.HipService.OpenMrs
+namespace In.ProjectEKA.HipLibrary.Patient
 {
     public interface ICareContextRepository
     {
