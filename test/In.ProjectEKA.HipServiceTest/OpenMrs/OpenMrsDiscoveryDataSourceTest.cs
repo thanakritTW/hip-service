@@ -52,6 +52,26 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoProgramEnrollmentsCareContexts()
+        {
+            //Given
+            openmrsClientMock
+                .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnProgramEnrollmentPath))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(EmptySample)
+                })
+                .Verifiable();
+
+            //When
+            var programenrollments = await discoveryDataSource.LoadProgramEnrollments(null);
+
+            //Then
+            programenrollments.Count().Should().Be(0);
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task ShouldReturnListOfVisits()
         {
             //Given
@@ -95,6 +115,26 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             firstVisitType.Display.Should().Be("OPD");
             var secondVisitType = visits[1];
             secondVisitType.Display.Should().Be("Emergency");
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoVisitCareContexts()
+        {
+            //Given
+            openmrsClientMock
+                .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnVisitPath))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(EmptySample)
+                })
+                .Verifiable();
+
+            //When
+            var visits = await discoveryDataSource.LoadVisits(null);
+
+            //Then
+            visits.Count().Should().Be(0);
         }
 
         [Fact]
@@ -294,6 +334,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                     }
                 }
             ]
+        }";
+
+        private const string EmptySample = @"{
+            ""results"": []
         }";
     }
 }
