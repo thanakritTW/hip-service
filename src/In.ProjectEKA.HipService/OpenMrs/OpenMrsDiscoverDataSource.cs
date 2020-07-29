@@ -54,7 +54,38 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
 
             return careContexts;
-            // return null;
+        }
+
+        public async Task<List<CareContextRepresentation>> LoadVisits(string uuid)
+        {
+            var path = DiscoveryPathConstants.OnVisitPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(uuid))
+            {
+                query["patient"] = uuid;
+                query["v"] = "full";
+            }
+            if (query.ToString() != "")
+            {
+                path = $"{path}/?{query}";
+            }
+
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var jsonDoc = JsonDocument.Parse(content);
+            var root = jsonDoc.RootElement;
+
+            var careContexts = new List<CareContextRepresentation>();
+            var results = root.GetProperty("results");
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var visitType = results[i].GetProperty("visitType");
+                var display = visitType.GetProperty("display").GetString();
+                careContexts.Add(new CareContextRepresentation(null, display));
+            }
+
+            return careContexts;
         }
     }
 }
