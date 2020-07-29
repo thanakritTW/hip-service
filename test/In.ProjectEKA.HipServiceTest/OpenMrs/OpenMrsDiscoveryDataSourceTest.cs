@@ -52,8 +52,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnVisitPath))
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                   StatusCode = HttpStatusCode.OK,
-                   Content = new StringContent(VisitSample)
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(VisitSample)
                 })
                 .Verifiable();
 
@@ -64,6 +64,34 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var visit = visits[0];
             visit.Display.Should().Be("OPD");
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnListOfVisitsGroupedByType()
+        {
+            //Given
+            var openmrsClientMock = new Mock<IOpenMrsClient>();
+            var discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
+            openmrsClientMock
+                .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnVisitPath))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(VisitSample)
+                })
+                .Verifiable();
+
+            //When
+            var visits = await discoveryDataSource.LoadVisits(null);
+
+            //Then
+            var numberOfVisitTypes = visits.Count();
+            numberOfVisitTypes.Should().Be(2);
+            var firstVisitType = visits[0];
+            firstVisitType.Display.Should().Be("OPD");
+            var secondVisitType = visits[1];
+            secondVisitType.Display.Should().Be("Emergency");
+        }
+
 
         private const string ProgramEnrollmentSample = @"{
             ""results"": [
@@ -148,7 +176,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 }
             ]
         }";
-  
+
         private const string VisitSample = @"{
             ""results"": [
                 {
@@ -167,6 +195,54 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                     ""visitType"": {
                         ""uuid"": ""96c49059-9af1-4f63-a8be-7554984fda02"",
                         ""display"": ""OPD"",
+                        ""links"": [
+                            {
+                                ""rel"": ""self"",
+                                ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visittype/96c49059-9af1-4f63-a8be-7554984fda02""
+                            }
+                        ]
+                    }
+                },
+                {
+                    ""uuid"": ""fd377423-c804-4df2-b340-1ef844206769"",
+                    ""display"": ""OPD @ Odisha - 07/22/2020 11:28 AM"",
+                    ""patient"": {
+                        ""uuid"": ""2ceb3abb-1724-4f4f-b969-43b63f73545e"",
+                        ""display"": ""OD100012 - Anshul Test One"",
+                        ""links"": [
+                            {
+                                ""rel"": ""self"",
+                                ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/2ceb3abb-1724-4f4f-b969-43b63f73545e""
+                            }
+                        ]
+                    },
+                    ""visitType"": {
+                        ""uuid"": ""96c49059-9af1-4f63-a8be-7554984fda02"",
+                        ""display"": ""OPD"",
+                        ""links"": [
+                            {
+                                ""rel"": ""self"",
+                                ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visittype/96c49059-9af1-4f63-a8be-7554984fda02""
+                            }
+                        ]
+                    }
+                },
+                {
+                    ""uuid"": ""fd377423-c804-4df2-b340-1ef844206769"",
+                    ""display"": ""OPD @ Odisha - 07/22/2020 11:28 AM"",
+                    ""patient"": {
+                        ""uuid"": ""2ceb3abb-1724-4f4f-b969-43b63f73545e"",
+                        ""display"": ""OD100012 - Anshul Test One"",
+                        ""links"": [
+                            {
+                                ""rel"": ""self"",
+                                ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/2ceb3abb-1724-4f4f-b969-43b63f73545e""
+                            }
+                        ]
+                    },
+                    ""visitType"": {
+                        ""uuid"": ""96c49059-9af1-4f63-a8be-7554984fda02"",
+                        ""display"": ""Emergency"",
                         ""links"": [
                             {
                                 ""rel"": ""self"",

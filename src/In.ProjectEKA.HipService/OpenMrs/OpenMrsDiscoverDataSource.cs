@@ -2,12 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using Patient = Hl7.Fhir.Model.Patient;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+using System.Linq;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -85,7 +83,12 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 careContexts.Add(new CareContextRepresentation(null, display));
             }
 
-            return careContexts;
+            List<CareContextRepresentation> uniqueCareContexts = careContexts
+                .GroupBy(careContext => careContext.Display)
+                .Select(visitType => visitType.First())
+                .ToList();
+
+            return uniqueCareContexts;
         }
     }
 }
