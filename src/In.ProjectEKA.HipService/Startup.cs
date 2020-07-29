@@ -91,6 +91,7 @@ namespace In.ProjectEKA.HipService
                 .Configure<HipConfiguration>(Configuration.GetSection("hip"))
                 .AddScoped<ILinkPatientRepository, LinkPatientRepository>()
                 .AddSingleton<IMatchingRepository, OpenMrsPatientMatchingRepository>()
+                .AddScoped<ICareContextRepository, OpenMrsDiscoveryDataSource>()
                 .AddScoped<IDiscoveryRequestRepository, DiscoveryRequestRepository>()
                 .AddScoped<IPatientDiscovery, PatientDiscovery>()
                 .AddScoped<LinkPatient>()

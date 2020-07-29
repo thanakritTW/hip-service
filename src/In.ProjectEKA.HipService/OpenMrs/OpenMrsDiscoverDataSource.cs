@@ -1,15 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
-using Hl7.Fhir.Model;
+using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using Patient = Hl7.Fhir.Model.Patient;
-using System.Text.Json;
-using System.Linq;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
-    public class OpenMrsDiscoveryDataSource : IPatientDal
+    public class OpenMrsDiscoveryDataSource : ICareContextRepository
     {
         private readonly IOpenMrsClient openMrsClient;
         public OpenMrsDiscoveryDataSource(IOpenMrsClient openMrsClient)
@@ -17,9 +16,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
             this.openMrsClient = openMrsClient;
         }
 
-        public async Task<List<Patient>> LoadPatientsAsync(string name, AdministrativeGender? gender, string yearOfBirth)
+        public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientReferenceNumber)
         {
-            return null;
+            return await LoadCombinedCareContexts(patientReferenceNumber);
         }
 
         public async Task<List<CareContextRepresentation>> LoadCombinedCareContexts(string uuid)
