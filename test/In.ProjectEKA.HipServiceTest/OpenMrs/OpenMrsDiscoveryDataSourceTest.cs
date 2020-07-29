@@ -20,13 +20,19 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     [Collection("OpenMrs Discovery Data Source Tests")]
     public class OpenMrsDiscoveryDataSourceTest
     {
+        private readonly Mock<IOpenMrsClient> openmrsClientMock;
+        private readonly OpenMrsDiscoveryDataSource discoveryDataSource;
+
+        public OpenMrsDiscoveryDataSourceTest()
+        {
+            openmrsClientMock = new Mock<IOpenMrsClient>();
+            discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
+        }
+
         [Fact]
         public async System.Threading.Tasks.Task ShouldReturnListOfProgramEnrollments()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
-
             openmrsClientMock
                 .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnProgramEnrollmentPath))
                 .ReturnsAsync(new HttpResponseMessage
@@ -49,8 +55,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async System.Threading.Tasks.Task ShouldReturnListOfVisits()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
             openmrsClientMock
                 .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnVisitPath))
                 .ReturnsAsync(new HttpResponseMessage
@@ -72,8 +76,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async System.Threading.Tasks.Task ShouldReturnListOfVisitsGroupedByType()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
             openmrsClientMock
                 .Setup(x => x.GetAsync(ExpectedOpenMrsDiscoveryPathConstants.OnVisitPath))
                 .ReturnsAsync(new HttpResponseMessage
@@ -99,7 +101,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async System.Threading.Tasks.Task ShouldReturnCombinedListOfCareContexts()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
             Mock<OpenMrsDiscoveryDataSource> discoveryDataSource = new Mock<OpenMrsDiscoveryDataSource>(openmrsClientMock.Object);
             discoveryDataSource.CallBase = true;
             discoveryDataSource
@@ -133,7 +134,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             combinedCareContexts[1].Display.Should().Be("OPD");
             combinedCareContexts[2].Display.Should().Be("Emergency");
         }
-
 
         private const string ProgramEnrollmentSample = @"{
             ""results"": [
