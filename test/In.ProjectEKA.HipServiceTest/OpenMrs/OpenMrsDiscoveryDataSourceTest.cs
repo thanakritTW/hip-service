@@ -164,7 +164,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var combinedCareContexts = await discoveryDataSource.Object.LoadCombinedCareContexts(null);
+            var combinedCareContexts =
+                (await discoveryDataSource.Object.GetCareContexts(null)).ToList();
 
             //Then
             combinedCareContexts.Count().Should().Be(3);

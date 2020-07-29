@@ -18,16 +18,11 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<IEnumerable<CareContextRepresentation>> GetCareContexts(string patientReferenceNumber)
         {
-            return await LoadCombinedCareContexts(patientReferenceNumber);
-        }
-
-        public async Task<List<CareContextRepresentation>> LoadCombinedCareContexts(string uuid)
-        {
             var combinedCareContexts = new List<CareContextRepresentation>();
-            var programCareContexts = await LoadProgramEnrollments(uuid);
+            var programCareContexts = await LoadProgramEnrollments(patientReferenceNumber);
             combinedCareContexts.AddRange(programCareContexts);
 
-            var visitCareContexts = await LoadVisits(uuid);
+            var visitCareContexts = await LoadVisits(patientReferenceNumber);
             combinedCareContexts.AddRange(visitCareContexts);
 
             return combinedCareContexts;
