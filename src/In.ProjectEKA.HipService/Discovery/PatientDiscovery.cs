@@ -10,6 +10,7 @@ namespace In.ProjectEKA.HipService.Discovery
     using Link;
     using In.ProjectEKA.HipService.Link.Model;
     using Logger;
+    using In.ProjectEKA.HipService.OpenMrs;
 
     public class PatientDiscovery: IPatientDiscovery
     {
@@ -17,6 +18,8 @@ namespace In.ProjectEKA.HipService.Discovery
         private readonly IDiscoveryRequestRepository discoveryRequestRepository;
         private readonly ILinkPatientRepository linkPatientRepository;
         private readonly IPatientRepository patientRepository;
+        // private readonly OpenMrsClient openMrsClient = new OpenMrsClient();
+        // private readonly OpenMrsDiscoveryDataSource discoveryDataSource = new OpenMrsDiscoveryDataSource();
 
         public PatientDiscovery(
             IMatchingRepository matchingRepository,
@@ -70,6 +73,12 @@ namespace In.ProjectEKA.HipService.Discovery
             }
 
             var patients = await matchingRepository.Where(request);
+            // foreach (var patient in patients)
+            // {
+            //     var careContexts = await discoveryDataSource.LoadCombinedCareContexts(patient.Identifier);
+            //     patient.CareContexts = careContexts;
+            // }
+
             var (patientEnquiryRepresentation, error) =
                 DiscoveryUseCase.DiscoverPatient(Filter.Do(patients, request).AsQueryable());
             if (patientEnquiryRepresentation == null)
