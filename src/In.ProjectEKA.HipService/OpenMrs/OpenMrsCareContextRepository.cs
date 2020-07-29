@@ -8,10 +8,10 @@ using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
-    public class OpenMrsDiscoveryDataSource : ICareContextRepository
+    public class OpenMrsCareContextRepository : ICareContextRepository
     {
         private readonly IOpenMrsClient openMrsClient;
-        public OpenMrsDiscoveryDataSource(IOpenMrsClient openMrsClient)
+        public OpenMrsCareContextRepository(IOpenMrsClient openMrsClient)
         {
             this.openMrsClient = openMrsClient;
         }

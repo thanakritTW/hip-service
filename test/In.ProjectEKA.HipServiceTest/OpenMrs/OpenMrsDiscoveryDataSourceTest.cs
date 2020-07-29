@@ -21,12 +21,12 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     public class OpenMrsDiscoveryDataSourceTest
     {
         private readonly Mock<IOpenMrsClient> openmrsClientMock;
-        private readonly OpenMrsDiscoveryDataSource discoveryDataSource;
+        private readonly OpenMrsCareContextRepository discoveryDataSource;
 
         public OpenMrsDiscoveryDataSourceTest()
         {
             openmrsClientMock = new Mock<IOpenMrsClient>();
-            discoveryDataSource = new OpenMrsDiscoveryDataSource(openmrsClientMock.Object);
+            discoveryDataSource = new OpenMrsCareContextRepository(openmrsClientMock.Object);
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async System.Threading.Tasks.Task ShouldReturnCombinedListOfCareContexts()
         {
             //Given
-            Mock<OpenMrsDiscoveryDataSource> discoveryDataSource = new Mock<OpenMrsDiscoveryDataSource>(openmrsClientMock.Object);
+            Mock<OpenMrsCareContextRepository> discoveryDataSource = new Mock<OpenMrsCareContextRepository>(openmrsClientMock.Object);
             discoveryDataSource.CallBase = true;
             discoveryDataSource
                 .Setup(x => x.LoadProgramEnrollments(It.IsAny<string>()))
