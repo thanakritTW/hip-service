@@ -19,6 +19,8 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
     public class PatientDiscoveryTest
     {
+        private readonly PatientDiscovery patientDiscovery;
+
         private readonly Mock<IDiscoveryRequestRepository> discoveryRequestRepository =
             new Mock<IDiscoveryRequestRepository>();
 
@@ -30,15 +32,20 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private readonly Mock<ICareContextRepository> careContextRepository = new Mock<ICareContextRepository>();
 
-        [Fact]
-        private async void ShouldReturnPatientForAlreadyLinkedPatient()
+        public PatientDiscoveryTest()
         {
-            var patientDiscovery = new PatientDiscovery(
+            patientDiscovery = new PatientDiscovery(
                 matchingRepository.Object,
                 discoveryRequestRepository.Object,
                 linkPatientRepository.Object,
                 patientRepository.Object,
                 careContextRepository.Object);
+        }
+        
+
+        [Fact]
+        private async void ShouldReturnPatientForAlreadyLinkedPatient()
+        {
             var phoneNumber = Faker().Phone.PhoneNumber();
             var verifiedIdentifiers = new[] {new Identifier(IdentifierType.MOBILE, phoneNumber)};
             var unverifiedIdentifiers = new[] {new Identifier(IdentifierType.MR, Faker().Random.String())};
@@ -101,12 +108,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldReturnAPatientWhichIsNotLinkedAtAll()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var referenceNumber = Faker().Random.String();
             var name = Faker().Random.String();
             var phoneNumber = Faker().Phone.PhoneNumber();
@@ -167,23 +168,12 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldReturnAPatientWhenUnverifiedIdentifierIsNull()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var referenceNumber = Faker().Random.String();
             var consentManagerUserId = Faker().Random.String();
             var transactionId = Faker().Random.String();
             var name = Faker().Name.FullName();
             const ushort yearOfBirth = 2019;
             var phoneNumber = Faker().Phone.PhoneNumber();
-            // var careContextRepresentations = new[]
-            // {
-            //     new CareContextRepresentation(Faker().Random.String(), Faker().Random.String()),
-            //     new CareContextRepresentation(Faker().Random.String(), Faker().Random.String())
-            // };
             var expectedPatient = new PatientEnquiryRepresentation(
                 referenceNumber,
                 name,
@@ -233,12 +223,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [ClassData(typeof(EmptyIdentifierTestData))]
         private async void ReturnMultiplePatientsErrorWhenUnverifiedIdentifierIs(IEnumerable<Identifier> identifiers)
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
             var verifiedIdentifiers = new[] {new Identifier(IdentifierType.MOBILE, Faker().Phone.PhoneNumber())};
@@ -283,12 +267,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldGetMultiplePatientsFoundErrorWhenSameUnverifiedIdentifiersAlsoMatch()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
             var patientReferenceNumber = Faker().Random.String();
@@ -337,12 +315,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldGetNoPatientFoundErrorWhenVerifiedIdentifierDoesNotMatch()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var consentManagerUserId = Faker().Random.String();
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found"));
             var verifiedIdentifiers = new List<Identifier>
@@ -369,12 +341,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [ClassData(typeof(EmptyIdentifierTestData))]
         private async void ReturnNoPatientFoundErrorWhenVerifiedIdentifierIs(IEnumerable<Identifier> identifiers)
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var consentManagerUserId = Faker().Random.String();
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found"));
             var patientRequest = new PatientEnquiry(consentManagerUserId,
@@ -396,12 +362,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldReturnAnErrorWhenDiscoveryRequestAlreadyExists()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.DuplicateDiscoveryRequest, "Discovery Request already exists"));
             var transactionId = RandomString();
@@ -418,12 +378,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [Fact]
         private async void ShouldReturnPatientWithCareContexts()
         {
-            var patientDiscovery = new PatientDiscovery(
-                matchingRepository.Object,
-                discoveryRequestRepository.Object,
-                linkPatientRepository.Object,
-                patientRepository.Object,
-                careContextRepository.Object);
             var referenceNumber = Faker().Random.String();
             var consentManagerUserId = Faker().Random.String();
             var transactionId = Faker().Random.String();
