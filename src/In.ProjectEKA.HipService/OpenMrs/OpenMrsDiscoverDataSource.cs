@@ -22,7 +22,19 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return null;
         }
 
-        public async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
+        public async Task<List<CareContextRepresentation>> LoadCombinedCareContexts(string uuid)
+        {
+            var combinedCareContexts = new List<CareContextRepresentation>();
+            var programCareContexts = await LoadProgramEnrollments(uuid);
+            combinedCareContexts.AddRange(programCareContexts);
+
+            var visitCareContexts = await LoadVisits(uuid);
+            combinedCareContexts.AddRange(visitCareContexts);
+
+            return combinedCareContexts;
+        }
+
+        public virtual async Task<List<CareContextRepresentation>> LoadProgramEnrollments(string uuid)
         {
             var path = DiscoveryPathConstants.OnProgramEnrollmentPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -54,7 +66,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return careContexts;
         }
 
-        public async Task<List<CareContextRepresentation>> LoadVisits(string uuid)
+        public virtual async Task<List<CareContextRepresentation>> LoadVisits(string uuid)
         {
             var path = DiscoveryPathConstants.OnVisitPath;
             var query = HttpUtility.ParseQueryString(string.Empty);

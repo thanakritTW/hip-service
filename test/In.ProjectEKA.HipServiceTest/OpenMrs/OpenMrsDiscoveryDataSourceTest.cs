@@ -5,6 +5,9 @@ using FluentAssertions;
 using In.ProjectEKA.HipService.OpenMrs;
 using Moq;
 using Xunit;
+using In.ProjectEKA.HipLibrary.Patient.Model;
+using System.Collections.Generic;
+
 
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
@@ -90,6 +93,45 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             firstVisitType.Display.Should().Be("OPD");
             var secondVisitType = visits[1];
             secondVisitType.Display.Should().Be("Emergency");
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnCombinedListOfCareContexts()
+        {
+            //Given
+            var openmrsClientMock = new Mock<IOpenMrsClient>();
+            Mock<OpenMrsDiscoveryDataSource> discoveryDataSource = new Mock<OpenMrsDiscoveryDataSource>(openmrsClientMock.Object);
+            discoveryDataSource.CallBase = true;
+            discoveryDataSource
+                .Setup(x => x.LoadProgramEnrollments(It.IsAny<string>()))
+                .ReturnsAsync(
+                    new List<CareContextRepresentation>
+                    {
+                        new CareContextRepresentation("12345", "HIV Program")
+                    })
+                .Verifiable();
+
+
+            discoveryDataSource
+                .Setup(x => x.LoadVisits(It.IsAny<string>()))
+                .ReturnsAsync(
+                    new List<CareContextRepresentation>
+                    {
+                        new CareContextRepresentation(null, "OPD"),
+                        new CareContextRepresentation(null, "Emergency")
+                    })
+                .Verifiable();
+
+            //When
+            var combinedCareContexts = await discoveryDataSource.Object.LoadCombinedCareContexts(null);
+
+            //Then
+            combinedCareContexts.Count().Should().Be(3);
+            combinedCareContexts[0].ReferenceNumber.Should().Be("12345");
+            combinedCareContexts[0].Display.Should().Be("HIV Program");
+
+            combinedCareContexts[1].Display.Should().Be("OPD");
+            combinedCareContexts[2].Display.Should().Be("Emergency");
         }
 
 
