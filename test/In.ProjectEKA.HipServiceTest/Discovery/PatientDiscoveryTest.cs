@@ -174,23 +174,12 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         }
 
         [Fact]
-        private async void ShouldGetNoPatientFoundErrorWhenVerifiedIdentifierDoesNotMatch()
+        private async void ShouldGetNoPatientFoundErrorWhenNoPatientMatchedInOpenMrs()
         {
-            var consentManagerUserId = Faker().Random.String();
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found"));
-            var verifiedIdentifiers = new List<Identifier>
-            {
-                new Identifier(IdentifierType.MR, Faker().Phone.PhoneNumber())
-            };
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                verifiedIdentifiers,
-                new List<Identifier>(),
-                null,
-                Gender.M,
-                2019);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, Faker().Random.String(), RandomString(), DateTime.Now);
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
+            var discoveryRequest = discoveryRequestBuilder.Build();
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 0);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
