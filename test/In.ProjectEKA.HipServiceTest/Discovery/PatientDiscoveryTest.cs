@@ -138,50 +138,6 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             error.Should().BeNull();
         }
 
-        private PatientEnquiryRepresentation BuildExpectedPatientByExpectedMatchTypes(params Match[] expectedMatchTypes)
-        {
-            return new PatientEnquiryRepresentation(referenceNumber,
-                name,
-                new List<CareContextRepresentation>(),
-                expectedMatchTypes?.Select(m => m.ToString()));
-        }
-
-        private void SetupLinkRepositoryWithLinkedPatient(params string[] patientIds)
-        {
-            var linkedCareContexts =
-                new List<CareContextRepresentation> {
-                    new CareContextRepresentation(Faker().Random.Uuid().ToString(), Faker().Random.String())
-                };
-            var linkedAccounts = patientIds.Select(p =>
-                new LinkedAccounts(p,
-                    Faker().Random.Hash(),
-                    Faker().Random.Hash(),
-                    It.IsAny<string>(),
-                    linkedCareContexts.Select(c => c.ReferenceNumber).ToList())
-            );
-
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(linkedAccounts, null));
-        }
-
-        private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest)
-        {
-            matchingRepository
-                .Setup(repo => repo.Where(discoveryRequest))
-                .Returns(Task.FromResult(new List<Patient>
-                {
-                    new Patient
-                    {
-                        Gender = gender,
-                        Identifier = referenceNumber,
-                        Name = name,
-                        PhoneNumber = phoneNumber,
-                        YearOfBirth = yearOfBirth
-                    }
-                }.AsQueryable()));
-
-        }
-
         [Fact]
         private async void ShouldReturnAPatientWhichIsNotLinkedAtAll()
         {
@@ -475,6 +431,49 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             error.Should().BeNull();
         }
 
+        private PatientEnquiryRepresentation BuildExpectedPatientByExpectedMatchTypes(params Match[] expectedMatchTypes)
+        {
+            return new PatientEnquiryRepresentation(referenceNumber,
+                name,
+                new List<CareContextRepresentation>(),
+                expectedMatchTypes?.Select(m => m.ToString()));
+        }
+
+        private void SetupLinkRepositoryWithLinkedPatient(params string[] patientIds)
+        {
+            var linkedCareContexts =
+                new List<CareContextRepresentation> {
+                    new CareContextRepresentation(Faker().Random.Uuid().ToString(), Faker().Random.String())
+                };
+            var linkedAccounts = patientIds.Select(p =>
+                new LinkedAccounts(p,
+                    Faker().Random.Hash(),
+                    Faker().Random.Hash(),
+                    It.IsAny<string>(),
+                    linkedCareContexts.Select(c => c.ReferenceNumber).ToList())
+            );
+
+            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
+                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(linkedAccounts, null));
+        }
+
+        private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest)
+        {
+            matchingRepository
+                .Setup(repo => repo.Where(discoveryRequest))
+                .Returns(Task.FromResult(new List<Patient>
+                {
+                    new Patient
+                    {
+                        Gender = gender,
+                        Identifier = referenceNumber,
+                        Name = name,
+                        PhoneNumber = phoneNumber,
+                        YearOfBirth = yearOfBirth
+                    }
+                }.AsQueryable()));
+
+        }
     }
 
     internal class EmptyIdentifierTestData : TheoryData<IEnumerable<Identifier>>
