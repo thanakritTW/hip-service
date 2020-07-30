@@ -163,42 +163,9 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         {
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
-            var patientReferenceNumber = Faker().Random.String();
-            var consentManagerUserId = Faker().Random.String();
-            const ushort yearOfBirth = 2019;
-            var gender = Faker().PickRandom<Gender>();
-            var name = Faker().Name.FullName();
-            var verifiedIdentifiers = new[] {new Identifier(IdentifierType.MOBILE, Faker().Phone.PhoneNumber())};
-            var unverifiedIdentifiers = new[] {new Identifier(IdentifierType.MR, patientReferenceNumber)};
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                verifiedIdentifiers,
-                unverifiedIdentifiers,
-                name,
-                gender,
-                yearOfBirth);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, Faker().Random.String(), RandomString(), DateTime.Now);
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
-
-            matchingRepository
-                .Setup(repo => repo.Where(discoveryRequest))
-                .Returns(Task.FromResult(new List<Patient>
-                {
-                    new Patient
-                    {
-                        Identifier = patientReferenceNumber,
-                        YearOfBirth = yearOfBirth,
-                        Gender = gender,
-                        Name = name
-                    },
-                    new Patient
-                    {
-                        Identifier = patientReferenceNumber,
-                        YearOfBirth = yearOfBirth,
-                        Gender = gender,
-                        Name = name
-                    }
-                }.AsQueryable()));
+            var discoveryRequest = discoveryRequestBuilder.Build();
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 2);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
