@@ -143,38 +143,11 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         {
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
-            var verifiedIdentifiers = new[] {new Identifier(IdentifierType.MOBILE, Faker().Phone.PhoneNumber())};
-            var consentManagerUserId = Faker().Random.String();
-            const ushort yearOfBirth = 2019;
-            var gender = Faker().PickRandom<Gender>();
-            var name = Faker().Name.FullName();
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                verifiedIdentifiers,
-                identifiers,
-                name,
-                gender,
-                yearOfBirth);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, Faker().Random.String(), RandomString(), DateTime.Now);
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
 
-            matchingRepository
-                .Setup(repo => repo.Where(discoveryRequest))
-                .Returns(Task.FromResult(new List<Patient>
-                {
-                    new Patient
-                    {
-                        YearOfBirth = yearOfBirth,
-                        Gender = gender,
-                        Name = name
-                    },
-                    new Patient
-                    {
-                        YearOfBirth = yearOfBirth,
-                        Gender = gender,
-                        Name = name
-                    }
-                }.AsQueryable()));
+            var discoveryRequest = discoveryRequestBuilder.Build();
+
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 2);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
@@ -387,7 +360,20 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                         YearOfBirth = yearOfBirth
                     }
                 }.AsQueryable()));
+        }
 
+        private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest, int numberOfPatients){
+            matchingRepository
+                .Setup(repo => repo.Where(discoveryRequest))
+                .Returns(Task.FromResult(Enumerable.Range(1, numberOfPatients)
+                    .Select(_ => new Patient
+                        {
+                            Gender = gender,
+                            Identifier = openMrsPatientReferenceNumber,
+                            Name = name,
+                            PhoneNumber = phoneNumber,
+                            YearOfBirth = yearOfBirth
+                        }).AsQueryable()));
         }
 
         private void SetupPatientRepository(CareContextRepresentation alreadyLinked, CareContextRepresentation unlinkedCareContext)
