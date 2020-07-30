@@ -23,6 +23,9 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         private readonly Mock<IOpenMrsClient> openmrsClientMock;
         private readonly OpenMrsCareContextRepository careContextRepository;
 
+        private const string programReferenceNumber = "c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87";
+        private const string programDisplayName = "HIV Program";
+
         public OpenMrsCareContextRepositoryTest()
         {
             openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -40,8 +43,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
             //Then
             var program = programenrollments[0];
-            program.ReferenceNumber.Should().Be("12345");
-            program.Display.Should().Be("HIV Program");
+            program.ReferenceNumber.Should().Be(programReferenceNumber);
+            program.Display.Should().Be(programDisplayName);
         }
 
         [Fact]
@@ -155,7 +158,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         private const string ProgramEnrollmentSample = @"{
             ""results"": [
                 {
-                    ""uuid"": ""c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87"",
+                    ""uuid"": """ + programReferenceNumber + @""",
                     ""patient"": {
                         ""uuid"": ""b5e712bc-9472-41c0-a11f-500deac452d2"",
                         ""display"": ""1234 - John Doe"",
@@ -188,7 +191,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                             ]
                         }
                     },
-                    ""display"": ""HIV Program"",
+                    ""display"": """ + programDisplayName + @""",
                     ""dateEnrolled"": ""2020-07-13T14:00:00.000+0000"",
                     ""dateCompleted"": null,
                     ""location"": null,
