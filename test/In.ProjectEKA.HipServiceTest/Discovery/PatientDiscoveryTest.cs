@@ -150,7 +150,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                     .Build();
 
             SetupLinkRepositoryWithLinkedPatient();
-            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 2);
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, numberOfPatients: 2);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
@@ -165,7 +165,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
             var discoveryRequest = discoveryRequestBuilder.Build();
             SetupLinkRepositoryWithLinkedPatient();
-            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 2);
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, numberOfPatients: 2);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
@@ -179,7 +179,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found"));
             var discoveryRequest = discoveryRequestBuilder.Build();
             SetupLinkRepositoryWithLinkedPatient();
-            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 0);
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, numberOfPatients: 0);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
@@ -191,17 +191,10 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
         [ClassData(typeof(EmptyIdentifierTestData))]
         private async void ReturnNoPatientFoundErrorWhenVerifiedIdentifierIs(IEnumerable<Identifier> identifiers)
         {
-            var consentManagerUserId = Faker().Random.String();
             var expectedError = new ErrorRepresentation(new Error(ErrorCode.NoPatientFound, "No patient found"));
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                identifiers,
-                new List<Identifier>(),
-                null,
-                Gender.M,
-                2019);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, Faker().Random.String(), RandomString(), DateTime.Now);
-            linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
+            var discoveryRequest = discoveryRequestBuilder.Build();
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, numberOfPatients: 0);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
