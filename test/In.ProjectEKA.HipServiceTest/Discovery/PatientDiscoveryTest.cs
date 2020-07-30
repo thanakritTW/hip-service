@@ -144,7 +144,10 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var expectedError =
                 new ErrorRepresentation(new Error(ErrorCode.MultiplePatientsFound, "Multiple patients found"));
 
-            var discoveryRequest = discoveryRequestBuilder.Build();
+            var discoveryRequest =
+                discoveryRequestBuilder
+                    .WithUnverifiedIdentifiers(identifiers?.ToList())
+                    .Build();
 
             SetupLinkRepositoryWithLinkedPatient();
             SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 2);
@@ -347,19 +350,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest)
         {
-            matchingRepository
-                .Setup(repo => repo.Where(discoveryRequest))
-                .Returns(Task.FromResult(new List<Patient>
-                {
-                    new Patient
-                    {
-                        Gender = gender,
-                        Identifier = openMrsPatientReferenceNumber,
-                        Name = name,
-                        PhoneNumber = phoneNumber,
-                        YearOfBirth = yearOfBirth
-                    }
-                }.AsQueryable()));
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest, 1);
         }
 
         private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest, int numberOfPatients){
@@ -373,7 +364,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                             Name = name,
                             PhoneNumber = phoneNumber,
                             YearOfBirth = yearOfBirth
-                        }).AsQueryable()));
+                        }).ToList().AsQueryable()));
         }
 
         private void SetupPatientRepository(CareContextRepresentation alreadyLinked, CareContextRepresentation unlinkedCareContext)
