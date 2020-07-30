@@ -16,6 +16,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
     using Xunit;
     using Match = HipLibrary.Patient.Model.Match;
     using static Builder.TestBuilders;
+    using In.ProjectEKA.HipServiceTest.Discovery.Builder;
 
     public class PatientDiscoveryTest
     {
@@ -23,14 +24,20 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         private readonly Mock<IDiscoveryRequestRepository> discoveryRequestRepository =
             new Mock<IDiscoveryRequestRepository>();
-
         private readonly Mock<ILinkPatientRepository> linkPatientRepository = new Mock<ILinkPatientRepository>();
-
         private readonly Mock<IMatchingRepository> matchingRepository = new Mock<IMatchingRepository>();
-
         private readonly Mock<IPatientRepository> patientRepository = new Mock<IPatientRepository>();
-
         private readonly Mock<ICareContextRepository> careContextRepository = new Mock<ICareContextRepository>();
+
+        DiscoveryRequestPayloadBuilder discoveryRequestBuilder;
+
+        string referenceNumber;
+        string name;
+        string phoneNumber;
+        string consentManagerUserId;
+        string transactionId;
+        ushort yearOfBirth;
+        Gender gender;
 
         public PatientDiscoveryTest()
         {
@@ -40,8 +47,34 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
                 linkPatientRepository.Object,
                 patientRepository.Object,
                 careContextRepository.Object);
-        }
-        
+
+            referenceNumber = Faker().Random.String();
+            name = Faker().Random.String();
+            phoneNumber = Faker().Phone.PhoneNumber();
+            consentManagerUserId = Faker().Random.String();
+            transactionId = Faker().Random.String();
+            yearOfBirth = 2019;
+            gender = Gender.M;
+            //var verifiedIdentifiers = new List<Identifier>
+            //{
+            //    new Identifier(IdentifierType.MOBILE, phoneNumber)
+            //};
+            //var unverifiedIdentifiers = new List<Identifier>
+            //{
+            //    new Identifier(IdentifierType.MR, referenceNumber)
+            //};
+
+            discoveryRequestBuilder = new DiscoveryRequestPayloadBuilder();
+
+            discoveryRequestBuilder
+                .WithPatientId(consentManagerUserId)
+                .WithPatientName(name)
+                .WithPatientGender(gender)
+                .WithVerifiedIdentifiers(IdentifierType.MOBILE, phoneNumber)
+                .WithUnverifiedIdentifiers(IdentifierType.MR, referenceNumber)
+                .WithTransactionId(transactionId);
+
+        }        
 
         [Fact]
         private async void ShouldReturnPatientForAlreadyLinkedPatient()
@@ -105,55 +138,61 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             error.Should().BeNull();
         }
 
-        [Fact]
-        private async void ShouldReturnAPatientWhichIsNotLinkedAtAll()
+        private PatientEnquiryRepresentation BuildExpectedPatientByExpectedMatchTypes(params Match[] expectedMatchTypes)
         {
-            var referenceNumber = Faker().Random.String();
-            var name = Faker().Random.String();
-            var phoneNumber = Faker().Phone.PhoneNumber();
-            var consentManagerUserId = Faker().Random.String();
-            var transactionId = Faker().Random.String();
-            const ushort yearOfBirth = 2019;
-            var expectedPatient = new PatientEnquiryRepresentation(referenceNumber,
+            return new PatientEnquiryRepresentation(referenceNumber,
                 name,
                 new List<CareContextRepresentation>(),
-                new List<string>
-                {
-                    Match.Mobile.ToString(),
-                    Match.Name.ToString(),
-                    Match.Gender.ToString(),
-                    Match.Mr.ToString()
-                });
-            var verifiedIdentifiers = new List<Identifier>
-            {
-                new Identifier(IdentifierType.MOBILE, phoneNumber)
-            };
-            var unverifiedIdentifiers = new List<Identifier>
-            {
-                new Identifier(IdentifierType.MR, referenceNumber)
-            };
-            var patientRequest = new PatientEnquiry(consentManagerUserId,
-                verifiedIdentifiers,
-                unverifiedIdentifiers,
-                name,
-                Gender.M,
-                yearOfBirth);
-            var discoveryRequest = new DiscoveryRequest(patientRequest, RandomString(),transactionId, DateTime.Now);
+                expectedMatchTypes?.Select(m => m.ToString()));
+        }
+
+        private void SetupLinkRepositoryWithLinkedPatient(params string[] patientIds)
+        {
+            var linkedCareContexts =
+                new List<CareContextRepresentation> {
+                    new CareContextRepresentation(Faker().Random.Uuid().ToString(), Faker().Random.String())
+                };
+            var linkedAccounts = patientIds.Select(p =>
+                new LinkedAccounts(p,
+                    Faker().Random.Hash(),
+                    Faker().Random.Hash(),
+                    It.IsAny<string>(),
+                    linkedCareContexts.Select(c => c.ReferenceNumber).ToList())
+            );
+
             linkPatientRepository.Setup(e => e.GetLinkedCareContexts(consentManagerUserId))
-                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(new List<LinkedAccounts>(), null));
+                .ReturnsAsync(new Tuple<IEnumerable<LinkedAccounts>, Exception>(linkedAccounts, null));
+        }
+
+        private void SetupMatchingRepositoryForDiscoveryRequest(DiscoveryRequest discoveryRequest)
+        {
             matchingRepository
                 .Setup(repo => repo.Where(discoveryRequest))
                 .Returns(Task.FromResult(new List<Patient>
                 {
                     new Patient
                     {
-                        Gender = Gender.M,
+                        Gender = gender,
                         Identifier = referenceNumber,
                         Name = name,
                         PhoneNumber = phoneNumber,
                         YearOfBirth = yearOfBirth
                     }
                 }.AsQueryable()));
+
+        }
+
+        [Fact]
+        private async void ShouldReturnAPatientWhichIsNotLinkedAtAll()
+        {
+            var expectedPatient = BuildExpectedPatientByExpectedMatchTypes(
+                Match.Mobile,
+                Match.Name,
+                Match.Gender,
+                Match.Mr);
+            var discoveryRequest = discoveryRequestBuilder.Build();
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest);
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 
