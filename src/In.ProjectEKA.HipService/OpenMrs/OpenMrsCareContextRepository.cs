@@ -56,8 +56,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 if (attributes.GetArrayLength() == 0)
                     throw new OpenMrsFormatException();
                 var referenceNumber = attributes[0].GetProperty("value").GetString();
-                var display = results[i].GetProperty("display").GetString();
-                careContexts.Add(new CareContextRepresentation(referenceNumber, display));
+                if (!results[i].TryGetProperty("display", out var display))
+                    throw new OpenMrsFormatException();
+                careContexts.Add(new CareContextRepresentation(referenceNumber, display.GetString()));
             }
 
             return careContexts;

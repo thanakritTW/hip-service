@@ -43,7 +43,20 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnErrorIfNoAttributesInResponse()
+        public void ShouldReturnErrorIfNoDisplayPropertyInResponse()
+        {
+            //Given
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutDisplay);
+
+            //When
+            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
+
+            //Then
+            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
+        }
+
+        [Fact]
+        public void ShouldReturnErrorIfNoAttributesInResponse()
         {
             //Given
             openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutAttributes);
@@ -164,10 +177,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
         }
 
-        private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment);
-        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],");
+        private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
+        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],", ProgramDisplay);
+        private string ProgramEnrollmentSampleWithoutDisplay = ProgramEnrollmentSample(AttributesOfProgramEnrollment, "");
 
-        private static Func<string, string> ProgramEnrollmentSample = (string attribute) => @"{
+        private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
             ""results"": [
                 {
                     ""uuid"": ""c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87"",
@@ -202,8 +216,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                                 }
                             ]
                         }
-                    },
-                    ""display"": ""HIV Program"",
+                    }," + display + @"
                     ""dateEnrolled"": ""2020-07-13T14:00:00.000+0000"",
                     ""dateCompleted"": null,
                     ""location"": null,
@@ -251,6 +264,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                             ""resourceVersion"": ""1.9""
                         }
                     ],";
+
+        private const string ProgramDisplay = @"""display"": ""HIV Program"",";
 
         private const string VisitSample = @"{
             ""results"": [
