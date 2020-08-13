@@ -61,6 +61,19 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnErrorIfNoAttributesInResponse()
+        {
+            //Given
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutAttributes);
+
+            //When
+            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
+
+            //Then
+            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoProgramEnrollmentsCareContexts()
         {
             //Given
@@ -173,6 +186,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
+
+        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],", ProgramDisplay);
 
         private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
             ""results"": [
