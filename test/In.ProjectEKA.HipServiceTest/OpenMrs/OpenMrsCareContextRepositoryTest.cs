@@ -61,7 +61,20 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ShouldReturnErrorIfNoAttributesInResponse()
+        public void ShouldReturnErrorIfNoDisplayPropertyInResponse()
+        {
+            //Given
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutDisplay);
+
+            //When
+            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
+
+            //Then
+            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
+        }
+
+        [Fact]
+        public void ShouldReturnErrorIfNoAttributesInResponse()
         {
             //Given
             openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutAttributes);
@@ -186,8 +199,8 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
-
         private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],", ProgramDisplay);
+        private string ProgramEnrollmentSampleWithoutDisplay = ProgramEnrollmentSample(AttributesOfProgramEnrollment, "");
 
         private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
             ""results"": [

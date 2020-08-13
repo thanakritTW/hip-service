@@ -53,7 +53,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-<<<<<<< HEAD
                 var attributes = TryGetProperty(results[i], "attributes");
                 if (attributes.GetArrayLength() == 0) {
                     LogAndThrowException($"Property 'attributes' is empty when getting program enrollments.");
@@ -61,14 +60,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var referenceNumber = TryGetProperty(attributes[0], "value");
                 var display = TryGetProperty(results[i], "display");
                 careContexts.Add(new CareContextRepresentation(referenceNumber.GetString(), display.GetString()));
-=======
-                var attributes = results[i].GetProperty("attributes");
-                if (attributes.GetArrayLength() == 0)
-                    throw new OpenMrsFormatException();
-                var referenceNumber = attributes[0].GetProperty("value").GetString();
-                var display = results[i].GetProperty("display").GetString();
-                careContexts.Add(new CareContextRepresentation(referenceNumber, display));
->>>>>>> HIP #59 | Gwan David | Add handling for missing attributes
             }
 
             return careContexts;
