@@ -7,7 +7,8 @@ using Moq;
 using Xunit;
 using In.ProjectEKA.HipLibrary.Patient.Model;
 using System.Collections.Generic;
-
+using System;
+using System.Threading.Tasks;
 
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
@@ -30,7 +31,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async System.Threading.Tasks.Task ShouldReturnListOfProgramEnrollments()
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSample);
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleFull);
 
             //When
             var programenrollments = await careContextRepository.LoadProgramEnrollments(null);
@@ -39,6 +40,19 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var program = programenrollments[0];
             program.ReferenceNumber.Should().Be("12345");
             program.Display.Should().Be("HIV Program");
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ShouldReturnErrorIfNoAttributesInResponse()
+        {
+            //Given
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutAttributes);
+
+            //When
+            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
+
+            //Then
+            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
         }
 
         [Fact]
@@ -149,7 +163,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 })
                 .Verifiable();
         }
-        private const string ProgramEnrollmentSample = @"{
+
+        private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment);
+        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],");
+
+        private static Func<string, string> ProgramEnrollmentSample = (string attribute) => @"{
             ""results"": [
                 {
                     ""uuid"": ""c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87"",
@@ -168,7 +186,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                                 ]
                             }
                         ]
-                    },
+                    }," + attribute + @"
                     ""program"": {
                         ""name"": ""HIV Program"",
                         ""uuid"": ""5789a170-c020-4879-ae39-06b1de26cb5f"",
@@ -191,7 +209,18 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                     ""location"": null,
                     ""voided"": false,
                     ""outcome"": null,
-                    ""attributes"": [
+                    ""links"": [
+                        {
+                            ""rel"": ""self"",
+                            ""uri"": ""http://192.168.33.10/openmrs/ws/rest/v1/bahmniprogramenrollment/c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87""
+                        }
+                    ],
+                    ""resourceVersion"": ""1.8""
+                }
+            ]
+        }";
+
+        private const string AttributesOfProgramEnrollment = @"""attributes"": [
                         {
                             ""display"": ""ID_Number: 12345"",
                             ""uuid"": ""11d5bc55-b94c-480c-ac0b-e5c9a7e40c20"",
@@ -221,17 +250,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                             ],
                             ""resourceVersion"": ""1.9""
                         }
-                    ],
-                    ""links"": [
-                        {
-                            ""rel"": ""self"",
-                            ""uri"": ""http://192.168.33.10/openmrs/ws/rest/v1/bahmniprogramenrollment/c1720ca0-8ea3-4ef7-a4fa-a7849ab99d87""
-                        }
-                    ],
-                    ""resourceVersion"": ""1.8""
-                }
-            ]
-        }";
+                    ],";
 
         private const string VisitSample = @"{
             ""results"": [
