@@ -42,6 +42,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         [InlineData(PatientVisitsSampleWithoutVisits)]
         [InlineData(PatientVisitsSampleWithoutEncounters)]
         [InlineData(PatientVisitsSampleWithoutObs)]
+        [InlineData(PatientVisitsSampleWithoutVisitType)]
         public async System.Threading.Tasks.Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string sampleData)
         {
             //Given
@@ -82,6 +83,39 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             Assert.Empty(observations);
         }
 
+private const string PatientVisitsSampleWithoutVisitType=@"{
+  ""results"": [
+      {
+          ""uuid"": ""823618e9-f403-4b41-8b83-7caba33403e7"",
+          ""display"": ""OPD @ Odisha - 08/04/2020 06:58 AM"",
+          ""patient"": {
+              ""uuid"": ""9da1a756-aa62-46fd-b56d-e35a6d2f2b30"",
+              ""display"": ""OD100013 - Patient test one"",
+              ""links"": [
+                  {
+                      ""rel"": ""self"",
+                      ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/9da1a756-aa62-46fd-b56d-e35a6d2f2b30""
+                  }
+              ]
+          },
+          ""visitType"": {},
+          ""indication"": null,
+          ""location"": {
+              ""uuid"": ""8d6c993e-c2cc-11de-8d13-0010c6dffd0f"",
+              ""display"": ""Odisha"",
+              ""links"": [
+                  {
+                      ""rel"": ""self"",
+                      ""uri"": ""http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/location/8d6c993e-c2cc-11de-8d13-0010c6dffd0f""
+                  }
+              ]
+          },
+          ""startDatetime"": ""2020-08-04T06:58:45.000+0530"",
+          ""stopDatetime"": ""2020-08-05T11:30:08.000+0530"",
+          ""resourceVersion"": ""1.9""
+      }
+  ]
+}";
         private const string PatientVisitsSampleWithoutObs = @"{
     ""results"": [
         {

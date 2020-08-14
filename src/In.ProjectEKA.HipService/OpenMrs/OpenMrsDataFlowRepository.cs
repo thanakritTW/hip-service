@@ -46,8 +46,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
                 var visitType = results[i].GetProperty("visitType");
-                var display = visitType.GetProperty("display").GetString();
-                if (display == visitTypeDisplay)
+
+                if (visitType.TryGetProperty("display", out var display) && display.ToString() == visitTypeDisplay)
                 {
                     var encounters = results[i].GetProperty("encounters");
                     if (encounters.GetArrayLength() != 0)
