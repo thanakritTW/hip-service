@@ -44,6 +44,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
         [Theory]
         [InlineData("\"attributes\":[],", ProgramDisplay)]
+        [InlineData(AttributesOfProgramEnrollmentWithoutValue, ProgramDisplay)]
         [InlineData(AttributesOfProgramEnrollment, "")]
         public void ShouldReturnErrorIfSomeFieldsAreMissing(string attribute, string display)
         {
@@ -222,6 +223,12 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 }
             ]
         }";
+
+        private const string AttributesOfProgramEnrollmentWithoutValue = @"""attributes"": [
+                        {
+                            ""display"": ""ID_Number: 12345""
+                        }
+                    ],";
 
         private const string AttributesOfProgramEnrollment = @"""attributes"": [
                         {

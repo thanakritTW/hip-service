@@ -55,10 +55,11 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var attributes = results[i].GetProperty("attributes");
                 if (attributes.GetArrayLength() == 0)
                     throw new OpenMrsFormatException();
-                var referenceNumber = attributes[0].GetProperty("value").GetString();
+                if (!attributes[0].TryGetProperty("value", out var referenceNumber))
+                    throw new OpenMrsFormatException();
                 if (!results[i].TryGetProperty("display", out var display))
                     throw new OpenMrsFormatException();
-                careContexts.Add(new CareContextRepresentation(referenceNumber, display.GetString()));
+                careContexts.Add(new CareContextRepresentation(referenceNumber.GetString(), display.GetString()));
             }
 
             return careContexts;
