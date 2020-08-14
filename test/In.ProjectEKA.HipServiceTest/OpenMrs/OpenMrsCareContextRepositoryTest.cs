@@ -186,8 +186,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
-        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],", ProgramDisplay);
-        private string ProgramEnrollmentSampleWithoutDisplay = ProgramEnrollmentSample(AttributesOfProgramEnrollment, "");
 
         private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
             ""results"": [
