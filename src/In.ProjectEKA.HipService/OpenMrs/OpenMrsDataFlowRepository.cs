@@ -29,7 +29,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 query["patient"] = patientReferenceNumber;
                 query["v"] = "full";
             } else {
-                return observations;
+                throw new OpenMrsFormatException();
             }
             if (query.ToString() != "")
             {
@@ -47,7 +47,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 var visitType = results[i].GetProperty("visitType");
 
-                if (visitType.TryGetProperty("display", out var display) && display.ToString() == visitTypeDisplay)
+                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
                 {
                     var encounters = results[i].GetProperty("encounters");
                     if (encounters.GetArrayLength() != 0)
