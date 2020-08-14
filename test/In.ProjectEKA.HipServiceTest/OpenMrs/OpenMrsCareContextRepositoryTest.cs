@@ -42,24 +42,14 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             program.Display.Should().Be("HIV Program");
         }
 
-        [Fact]
-        public void ShouldReturnErrorIfNoDisplayPropertyInResponse()
+        [Theory]
+        [InlineData("\"attributes\":[],", ProgramDisplay)]
+        [InlineData(AttributesOfProgramEnrollment, "")]
+        public void ShouldReturnErrorIfSomeFieldsAreMissing(string attribute, string display)
         {
             //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutDisplay);
-
-            //When
-            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
-
-            //Then
-            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
-        }
-
-        [Fact]
-        public void ShouldReturnErrorIfNoAttributesInResponse()
-        {
-            //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutAttributes);
+            var invalidSample = ProgramEnrollmentSample(attribute, display);
+            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, invalidSample);
 
             //When
             Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
