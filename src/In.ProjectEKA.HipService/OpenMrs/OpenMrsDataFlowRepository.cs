@@ -154,6 +154,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var conditions = new List<Condition>();
             var path = DataFlowPathConstants.OnConditionPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
+            var observations = new List<Observation>();
             if (!string.IsNullOrEmpty(patientReferenceNumber))
             {
                 query["patientUuid"] = patientReferenceNumber;
