@@ -1,10 +1,13 @@
 using System.Linq;
+using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using FluentAssertions;
 using In.ProjectEKA.HipService.OpenMrs;
 using Moq;
 using Xunit;
+using System;
+
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
 
@@ -12,7 +15,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     public class OpenMrsDataFlowRepositoryTest
     {
         [Fact]
-        public async System.Threading.Tasks.Task LoadObservationsForVisits_ShouldReturnListOfObservations()
+        public async Task LoadObservationsForVisits_ShouldReturnListOfObservations()
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -43,7 +46,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         [InlineData(PatientVisitsSampleWithoutEncounters)]
         [InlineData(PatientVisitsSampleWithoutObs)]
         [InlineData(PatientVisitsSampleWithoutVisitType)]
-        public async System.Threading.Tasks.Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string sampleData)
+        public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string sampleData)
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -69,7 +72,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoPatientReferenceNumber()
+        public void LoadObservationsForVisits_ShouldReturnError_WhenNoPatientReferenceNumber()
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -77,10 +80,12 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var patientReferenceNumber = string.Empty;
 
             //When
-            var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
+            Func<Task> loadObservationsForVisits = async () => {
+                await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
+            };
 
             //Then
-            Assert.Empty(observations);
+            loadObservationsForVisits.Should().Throw<OpenMrsFormatException>();
         }
 
 private const string PatientVisitsSampleWithoutVisitType=@"{
