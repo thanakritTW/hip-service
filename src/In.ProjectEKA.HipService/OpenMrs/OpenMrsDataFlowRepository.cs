@@ -23,10 +23,13 @@ namespace In.ProjectEKA.HipService.OpenMrs
         {
             var path = DataFlowPathConstants.OnVisitPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
+            var observations = new List<Observation>();
             if (!string.IsNullOrEmpty(patientReferenceNumber))
             {
                 query["patient"] = patientReferenceNumber;
                 query["v"] = "full";
+            } else {
+                return observations;
             }
             if (query.ToString() != "")
             {
@@ -39,7 +42,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
 
-            var observations = new List<Observation>();
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
