@@ -17,9 +17,9 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
             var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
-            var patientId = "123";
+            var patientReferenceNumber = "123";
 
-            var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientId}&v=full";
+            var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
             openmrsClientMock
                 .Setup(x => x.GetAsync(path))
@@ -31,7 +31,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var observations = await dataFlowRepository.LoadObservationsForVisits(patientId, "OPD");
+            var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
 
             //Then
             var firstObservation = observations[0];
@@ -47,9 +47,9 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
             var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
-            var patientId = "123";
+            var patientReferenceNumber = "123";
 
-            var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientId}&v=full";
+            var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
             openmrsClientMock
                 .Setup(x => x.GetAsync(path))
@@ -61,7 +61,22 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .Verifiable();
 
             //When
-            var observations = await dataFlowRepository.LoadObservationsForVisits(patientId, "OPD");
+            var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
+
+            //Then
+            Assert.Empty(observations);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoPatientReferenceNumber()
+        {
+            //Given
+            var openmrsClientMock = new Mock<IOpenMrsClient>();
+            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
+            var patientReferenceNumber = string.Empty;
+
+            //When
+            var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
 
             //Then
             Assert.Empty(observations);
