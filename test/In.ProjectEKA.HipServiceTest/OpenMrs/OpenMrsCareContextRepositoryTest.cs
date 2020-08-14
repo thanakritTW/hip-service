@@ -44,6 +44,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
         [Theory]
         [InlineData("\"attributes\":[],", ProgramDisplay)]
+        [InlineData("", ProgramDisplay)]
         [InlineData(AttributesOfProgramEnrollmentWithoutValue, ProgramDisplay)]
         [InlineData(AttributesOfProgramEnrollment, "")]
         public void ShouldReturnErrorIfSomeFieldsAreMissing(string attribute, string display)
@@ -169,8 +170,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         private string ProgramEnrollmentSampleFull = ProgramEnrollmentSample(AttributesOfProgramEnrollment, ProgramDisplay);
-        private string ProgramEnrollmentSampleWithoutAttributes = ProgramEnrollmentSample("\"attributes\":[],", ProgramDisplay);
-        private string ProgramEnrollmentSampleWithoutDisplay = ProgramEnrollmentSample(AttributesOfProgramEnrollment, "");
 
         private static Func<string, string, string> ProgramEnrollmentSample = (string attribute, string display) => @"{
             ""results"": [

@@ -52,7 +52,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                var attributes = results[i].GetProperty("attributes");
+                if (!results[i].TryGetProperty("attributes", out var attributes))
+                    throw new OpenMrsFormatException();
                 if (attributes.GetArrayLength() == 0)
                     throw new OpenMrsFormatException();
                 if (!attributes[0].TryGetProperty("value", out var referenceNumber))
