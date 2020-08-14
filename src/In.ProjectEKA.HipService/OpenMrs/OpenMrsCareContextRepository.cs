@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
+using In.ProjectEKA.HipService.Logger;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -52,18 +53,28 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                if (!results[i].TryGetProperty("attributes", out var attributes))
-                    throw new OpenMrsFormatException();
-                if (attributes.GetArrayLength() == 0)
-                    throw new OpenMrsFormatException();
-                if (!attributes[0].TryGetProperty("value", out var referenceNumber))
-                    throw new OpenMrsFormatException();
-                if (!results[i].TryGetProperty("display", out var display))
-                    throw new OpenMrsFormatException();
+                var attributes = TryGetProperty(results[i], "attributes");
+                if (attributes.GetArrayLength() == 0) {
+                    LogAndThrowException($"Property 'attributes' is empty when getting program enrollments.");
+                }
+                var referenceNumber = TryGetProperty(attributes[0], "value");
+                var display = TryGetProperty(results[i], "display");
                 careContexts.Add(new CareContextRepresentation(referenceNumber.GetString(), display.GetString()));
             }
 
             return careContexts;
+        }
+
+        private JsonElement TryGetProperty(JsonElement data, string propertyName) {
+            if (!data.TryGetProperty(propertyName, out var property)) {
+                LogAndThrowException($"Property '{propertyName}' is missing when getting program enrollments.");
+            }
+            return property;
+        }
+
+        private void LogAndThrowException(string message) {
+            Log.Error(message);
+            throw new OpenMrsFormatException();
         }
 
         public virtual async Task<List<CareContextRepresentation>> LoadVisits(string uuid)
