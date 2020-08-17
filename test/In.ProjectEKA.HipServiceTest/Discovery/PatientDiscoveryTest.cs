@@ -267,6 +267,25 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             error.Should().BeEquivalentTo(expectedError);
         }
 
+        [Fact]
+        private async void ShouldReturnErrorIfFailedToConnectToOpenMrsServer()
+        {
+            var expectedError =
+                new ErrorRepresentation(new Error(ErrorCode.OpenMrsConnection, "HIP connection error."));
+            var discoveryRequest = discoveryRequestBuilder.WithUnverifiedIdentifiers(null).Build();
+            SetupLinkRepositoryWithLinkedPatient();
+            SetupMatchingRepositoryForDiscoveryRequest(discoveryRequest);
+
+            matchingRepository
+                .Setup(e => e.Where(discoveryRequest))
+                .Throws<OpenMrsNetworkException>();
+
+            var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
+
+            discoveryResponse.Should().BeNull();
+            error.Should().BeEquivalentTo(expectedError);
+        }
+
         private PatientEnquiryRepresentation BuildExpectedPatientByExpectedMatchTypes(
             params Match[] expectedMatchTypes)
         {

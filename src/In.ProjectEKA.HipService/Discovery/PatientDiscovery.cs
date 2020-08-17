@@ -73,8 +73,21 @@ namespace In.ProjectEKA.HipService.Discovery
                         new ErrorRepresentation(new Error(ErrorCode.NoPatientFound,
                             ErrorMessage.NoPatientFound)))));
             }
+            IQueryable<Patient> patients;
 
-            var patients = await matchingRepository.Where(request);
+            try {
+                patients = await matchingRepository.Where(request);
+            }
+            catch (OpenMrsNetworkException e)
+            {
+                return (
+                    null,
+                    new ErrorRepresentation(
+                        new Error(
+                            ErrorCode.OpenMrsConnection,
+                            "HIP connection error.")));
+            }
+
             try
             {
                 foreach (var patient in patients)
