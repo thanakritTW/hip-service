@@ -214,6 +214,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
             return encountersMatchingVisitType;
         }
+
         private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
         {
             var path = DataFlowPathConstants.OnVisitPath;
