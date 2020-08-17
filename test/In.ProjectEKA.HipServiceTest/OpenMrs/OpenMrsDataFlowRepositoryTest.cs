@@ -193,6 +193,138 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             Assert.Empty(medications);
         }
+        [Fact]
+        public async Task LoadConditionForVisits_ShouldReturnVisitCondition()
+        {
+            //Given
+            var openmrsClientMock = new Mock<IOpenMrsClient>();
+            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
+            var patientReferenceNumber = "123";
+
+            var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
+
+            openmrsClientMock
+                .Setup(x => x.GetAsync(path))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(PatientVisitsSampleWithCondition)
+                })
+                .Verifiable();
+
+            var conditions = await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
+
+            //Then
+            var firstCondition = conditions[0];
+            firstCondition.ConditionNonCoded.Should().Be("Former smoker");
+        }
+        [Fact]
+        public async Task LoadConditionForVisits__ShouldReturnEmptyList_WhenNoConditionsFound()
+        {
+            //Given
+            var openmrsClientMock = new Mock<IOpenMrsClient>();
+            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
+            var patientReferenceNumber = "123";
+
+            var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
+
+            openmrsClientMock
+                .Setup(x => x.GetAsync(path))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(PatientVisitsSampleNoCondition)
+                })
+                .Verifiable();
+
+            var conditions = await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
+
+            //Then
+            Assert.Empty(conditions);
+        }
+        private const string PatientVisitsSampleNoCondition = @"[]";
+
+        private const string PatientVisitsSampleWithCondition = @"[
+  {
+    ""conditionNonCoded"": ""Former smoker"",
+    ""conceptUuid"": ""327a6b53-3151-11e7-82e0-02ef4b2b56f9"",
+    ""conditions"": [
+      {
+        ""uuid"": ""079f364b-eca2-4027-a5c6-c4950ea79d47"",
+        ""patientUuid"": ""3ae1ee52-e9b2-4934-876d-30711c0e3e2f"",
+        ""concept"": {
+          ""uuid"": ""327a6b53-3151-11e7-82e0-02ef4b2b56f9"",
+          ""name"": ""Non-Coded Condition"",
+          ""shortName"": ""Non-Coded Condition""
+        },
+        ""conditionNonCoded"": ""Former smoker"",
+        ""status"": ""HISTORY_OF"",
+        ""onSetDate"": 1597602600000,
+        ""endDate"": null,
+        ""endReason"": null,
+        ""additionalDetail"": null,
+        ""voided"": false,
+        ""voidReason"": null,
+        ""creator"": ""Super Man (superman)"",
+        ""dateCreated"": 1597661476000,
+        ""previousConditionUuid"": null
+      }
+    ]
+  },
+  {
+    ""conditionNonCoded"": ""Cardiac pacemaker"",
+    ""conceptUuid"": ""327a6b53-3151-11e7-82e0-02ef4b2b56f9"",
+    ""conditions"": [
+      {
+        ""uuid"": ""6516574f-ff50-4de2-bb44-b92cc5e37de3"",
+        ""patientUuid"": ""3ae1ee52-e9b2-4934-876d-30711c0e3e2f"",
+        ""concept"": {
+          ""uuid"": ""327a6b53-3151-11e7-82e0-02ef4b2b56f9"",
+          ""name"": ""Non-Coded Condition"",
+          ""shortName"": ""Non-Coded Condition""
+        },
+        ""conditionNonCoded"": ""Cardiac pacemaker"",
+        ""status"": ""ACTIVE"",
+        ""onSetDate"": 1596565800000,
+        ""endDate"": null,
+        ""endReason"": null,
+        ""additionalDetail"": null,
+        ""voided"": false,
+        ""voidReason"": null,
+        ""creator"": ""Super Man (superman)"",
+        ""dateCreated"": 1597661097000,
+        ""previousConditionUuid"": null
+      }
+    ]
+  },
+  {
+    ""conditionNonCoded"": null,
+    ""conceptUuid"": ""e4a391e6-4e14-11e4-8a57-0800271c1b75"",
+    ""conditions"": [
+      {
+        ""uuid"": ""5383a735-13f5-467a-a064-5674b3930b6c"",
+        ""patientUuid"": ""3ae1ee52-e9b2-4934-876d-30711c0e3e2f"",
+        ""concept"": {
+          ""uuid"": ""e4a391e6-4e14-11e4-8a57-0800271c1b75"",
+          ""name"": ""Hypertension, unspec."",
+          ""shortName"": null
+        },
+        ""conditionNonCoded"": null,
+        ""status"": ""ACTIVE"",
+        ""onSetDate"": 1493913600000,
+        ""endDate"": null,
+        ""endReason"": null,
+        ""additionalDetail"": """",
+        ""voided"": false,
+        ""voidReason"": null,
+        ""creator"": ""Super Man (superman)"",
+        ""dateCreated"": 1493973464000,
+        ""previousConditionUuid"": null
+      }
+    ]
+  }
+]
+";
         private const string sampleDataWithoutOrders = @"
 {
     ""results"": [
