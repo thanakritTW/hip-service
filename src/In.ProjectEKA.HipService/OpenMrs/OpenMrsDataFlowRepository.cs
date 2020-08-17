@@ -88,6 +88,37 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
             return diagnosis;
         }
+        public async Task<List<Medication>> LoadMedicationForVisits(string patientReferenceNumber, string visitTypeDisplay)
+        {
+            var medications = new List<Medication>();
+
+            JsonElement root = await getRootElementOfResult(patientReferenceNumber);
+
+            var results = root.GetProperty("results");
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var visitType = results[i].GetProperty("visitType");
+
+                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
+                {
+                    var encounters = results[i].GetProperty("encounters");
+                    {
+                        for (int j = 0; j < encounters.GetArrayLength(); j++)
+                        {
+                            var orders = encounters[j].GetProperty("orders");
+                            {
+                                for (int k = 0; k < orders.GetArrayLength(); k++)
+                                {
+                                    medications.Add(new Medication(orders[k].GetProperty("uuid").ToString(), orders[k].GetProperty("display").ToString(), orders[k].GetProperty("type").ToString()));
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            return medications;
+        }
         private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
         {
             var path = DataFlowPathConstants.OnVisitPath;
