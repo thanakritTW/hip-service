@@ -22,16 +22,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<HttpResponseMessage> GetAsync(string openMrsUrl)
         {
-            HttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = await httpClient.GetAsync(Path.Join(configuration.Url, openMrsUrl));
-            }
-            catch (Exception exception)
-            {
-                Log.Error(exception, exception.StackTrace);
-                throw exception;
-            }
+            var responseMessage = await httpClient.GetAsync(Path.Join(configuration.Url, openMrsUrl));
 
             if (!responseMessage.IsSuccessStatusCode)
             {
