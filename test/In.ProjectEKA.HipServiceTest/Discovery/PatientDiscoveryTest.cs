@@ -278,7 +278,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
             matchingRepository
                 .Setup(e => e.Where(discoveryRequest))
-                .Throws<OpenMrsNetworkException>();
+                .Throws<OpenMrsConnectionException>();
 
             var (discoveryResponse, error) = await patientDiscovery.PatientFor(discoveryRequest);
 

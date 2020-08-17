@@ -73,7 +73,7 @@ namespace In.ProjectEKA.HipService.Discovery
             try {
                 patients = await matchingRepository.Where(request);
             }
-            catch (OpenMrsNetworkException)
+            catch (OpenMrsConnectionException)
             {
                 return getError(ErrorCode.OpenMrsConnection, "HIP connection error.");
             }

@@ -44,7 +44,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             Func<Task> getAsyncMethod = async () => { await openmrsClient.GetAsync("path/to/resource"); };
 
             //Then
-            getAsyncMethod.Should().Throw<OpenMrsNetworkException>();
+            getAsyncMethod.Should().Throw<OpenMrsConnectionException>();
         }
 
         [Fact]

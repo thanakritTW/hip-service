@@ -29,7 +29,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 var error = await responseMessage.Content.ReadAsStringAsync();
                 Log.Error(
                     $"Failure in getting the data from OpenMrs with status code {responseMessage.StatusCode} {error}");
-                throw new OpenMrsNetworkException();
+                throw new OpenMrsConnectionException();
             }
             return responseMessage;
         }
