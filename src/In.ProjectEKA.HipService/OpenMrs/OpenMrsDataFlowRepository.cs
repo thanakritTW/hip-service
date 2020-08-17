@@ -119,6 +119,40 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
             return medications;
         }
+
+        public async Task<List<Condition>> LoadConditionsForVisit( string patientReferenceNumber){
+            var conditions =new List<Condition>();
+            var path = DataFlowPathConstants.OnConditionPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(patientReferenceNumber))
+            {
+                query["patientUuid"] = patientReferenceNumber;
+            }
+            if (query.ToString() != "")
+            {
+                path = $"{path}?{query}";
+            }
+            
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var jsonDoc = JsonDocument.Parse(content);
+            var results = jsonDoc.RootElement;
+
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var condition=results[i].GetProperty("conditions");
+                for(int j=0;j<condition.GetArrayLength();j++){
+                var concept=condition[j].GetProperty("concept");
+                    conditions.Add(new Condition(condition[j].GetProperty("uuid").ToString(),
+                    new Concept(concept.GetProperty("uuid").ToString(),concept.GetProperty("name").ToString()),
+                    condition[j].GetProperty("conditionNonCoded").ToString(),
+                    condition[j].GetProperty("status").ToString()));
+                }
+            }
+            
+            return conditions;
+        }
         private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
         {
             var path = DataFlowPathConstants.OnVisitPath;

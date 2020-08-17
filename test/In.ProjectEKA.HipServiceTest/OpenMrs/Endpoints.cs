@@ -13,5 +13,9 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             public const string OnPatientPath = "ws/fhir2/Patient";
         }
+        public static class EMRAPI
+        {
+            public const string OnConditionPath="ws/rest/emrapi/conditionhistory";
+        }
     }
 }
