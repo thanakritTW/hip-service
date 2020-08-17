@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
-using In.ProjectEKA.HipService.Logger;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -21,28 +20,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<List<Observation>> LoadObservationsForVisits(string patientReferenceNumber, string visitTypeDisplay)
         {
-            var path = DataFlowPathConstants.OnVisitPath;
-            var query = HttpUtility.ParseQueryString(string.Empty);
             var observations = new List<Observation>();
-            if (!string.IsNullOrEmpty(patientReferenceNumber))
-            {
-                query["patient"] = patientReferenceNumber;
-                query["v"] = "full";
-            }
-            else
-            {
-                throw new OpenMrsFormatException();
-            }
-            if (query.ToString() != "")
-            {
-                path = $"{path}?{query}";
-            }
 
-            var response = await openMrsClient.GetAsync(path);
-            var content = await response.Content.ReadAsStringAsync();
-
-            var jsonDoc = JsonDocument.Parse(content);
-            var root = jsonDoc.RootElement;
+            JsonElement root = await getRootElementOfResult(patientReferenceNumber);
 
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
@@ -77,23 +57,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
         {
             var diagnosis = new List<Diagnosis>();
             string diagnosisVisit = "Visit Diagnoses";
-            var path = DataFlowPathConstants.OnVisitPath;
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            if (!string.IsNullOrEmpty(patientReferenceNumber))
-            {
-                query["patient"] = patientReferenceNumber;
-                query["v"] = "full";
-            }
-            if (query.ToString() != "")
-            {
-                path = $"{path}?{query}";
-            }
 
-            var response = await openMrsClient.GetAsync(path);
-            var content = await response.Content.ReadAsStringAsync();
+            JsonElement root = await getRootElementOfResult(patientReferenceNumber);
 
-            var jsonDoc = JsonDocument.Parse(content);
-            var root = jsonDoc.RootElement;
             var results = root.GetProperty("results");
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
@@ -121,6 +87,31 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 }
             }
             return diagnosis;
+        }
+        private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
+        {
+            var path = DataFlowPathConstants.OnVisitPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(patientReferenceNumber))
+            {
+                query["patient"] = patientReferenceNumber;
+                query["v"] = "full";
+            }
+            else
+            {
+                throw new OpenMrsFormatException();
+            }
+            if (query.ToString() != "")
+            {
+                path = $"{path}?{query}";
+            }
+
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var jsonDoc = JsonDocument.Parse(content);
+            var root = jsonDoc.RootElement;
+            return root;
         }
     }
 }
