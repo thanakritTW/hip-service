@@ -28,7 +28,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 query["patient"] = patientReferenceNumber;
                 query["v"] = "full";
-            } else {
+            }
+            else
+            {
                 throw new OpenMrsFormatException();
             }
             if (query.ToString() != "")
@@ -71,7 +73,54 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             return observations;
         }
+        public async Task<List<Diagnosis>> LoadDiagnosticReportForVisits(string patientReferenceNumber, string visitTypeDisplay)
+        {
+            var diagnosis = new List<Diagnosis>();
+            string diagnosisVisit = "Visit Diagnoses";
+            var path = DataFlowPathConstants.OnVisitPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(patientReferenceNumber))
+            {
+                query["patient"] = patientReferenceNumber;
+                query["v"] = "full";
+            }
+            if (query.ToString() != "")
+            {
+                path = $"{path}?{query}";
+            }
 
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
 
+            var jsonDoc = JsonDocument.Parse(content);
+            var root = jsonDoc.RootElement;
+            var results = root.GetProperty("results");
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var visitType = results[i].GetProperty("visitType");
+
+                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
+                {
+                    var encounters = results[i].GetProperty("encounters");
+                    {
+                        for (int j = 0; j < encounters.GetArrayLength(); j++)
+                        {
+                            var obs = encounters[j].GetProperty("obs");
+                            {
+                                for (int k = 0; k < obs.GetArrayLength(); k++)
+                                {
+                                    if (obs[k].TryGetProperty("display", out var obsDisplay) && obsDisplay.GetString().Contains(diagnosisVisit))
+                                    {
+                                        diagnosis.Add(new Diagnosis(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            return diagnosis;
+        }
     }
 }
