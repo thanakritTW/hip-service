@@ -113,8 +113,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var firstDiagnosis = diagnosis[0];
             firstDiagnosis.Display.Should().Be("Visit Diagnoses: Primary, Confirmed, Hypertension, unspec., a5e9f749-4bd5-43b4-b5e5-886f0eccc09f, false");
         }
-        [Fact]
-        public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound()
+        [Theory]
+        [InlineData(PatientVisitsSampleWithoutVisitType)]
+        [InlineData(sampleDataWithoutDiagnosis)]
+        public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound(string sampleData)
         {
             //Given
             var openmrsClientMock = new Mock<IOpenMrsClient>();
@@ -128,7 +130,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(sampleDataWithoutDiagnosis)
+                    Content = new StringContent(sampleData)
                 })
                 .Verifiable();
 
