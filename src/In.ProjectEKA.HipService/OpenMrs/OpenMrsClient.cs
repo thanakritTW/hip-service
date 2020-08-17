@@ -22,15 +22,25 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public async Task<HttpResponseMessage> GetAsync(string openMrsUrl)
         {
+            HttpResponseMessage responseMessage;
             try
             {
-                return await httpClient.GetAsync(Path.Join(configuration.Url, openMrsUrl));
+                responseMessage = await httpClient.GetAsync(Path.Join(configuration.Url, openMrsUrl));
             }
             catch (Exception exception)
             {
                 Log.Error(exception, exception.StackTrace);
                 throw exception;
             }
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var error = await responseMessage.Content.ReadAsStringAsync();
+                Log.Error(
+                    $"Failure in getting the data from OpenMrs with status code {responseMessage.StatusCode} {error}");
+                throw new OpenMrsNetworkException();
+            }
+            return responseMessage;
         }
 
         private void SettingUpHeaderAuthorization()
