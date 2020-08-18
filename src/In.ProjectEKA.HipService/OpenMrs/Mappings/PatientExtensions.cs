@@ -12,7 +12,8 @@
                 Name = patientSearchedName,
                 Gender = openMrsPatient.Gender.HasValue ? (Gender)((int)openMrsPatient.Gender) : (Gender?)null,
                 YearOfBirth = (ushort?)openMrsPatient.BirthDateElement?.ToDateTimeOffset()?.Year,
-                Identifier = GetIdentifier(openMrsPatient)
+                Identifier = GetIdentifier(openMrsPatient),
+                Uuid = openMrsPatient.Id
             };
         }
 

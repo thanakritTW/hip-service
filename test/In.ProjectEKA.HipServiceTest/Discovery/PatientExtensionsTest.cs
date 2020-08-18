@@ -85,7 +85,7 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
 
         [Theory]
         [InlineData("1")]
-        [InlineData("12345678-1234-1234-1234-123456789abc")]
+        [InlineData("BAH203001")]
         [InlineData(null)]
         private void ToHipPatient_GivenOpenMrsPatient_IdentifierIsMappedToPatientIdentifier(string identifier)
         {
@@ -109,6 +109,25 @@ namespace In.ProjectEKA.HipServiceTest.Discovery
             var hipPatient = openMrsPatient.ToHipPatient(patientName);
 
             hipPatient.Identifier.Should().Be(identifier);
+        }
+
+        [Theory]
+        [InlineData("1")]
+        [InlineData("12345678-1234-1234-1234-123456789abc")]
+        [InlineData(null)]
+        private void ToHipPatient_GivenOpenMrsPatient_UuidIsMappedToPatientUuid(string patientUuid)
+        {
+            var openMrsPatient = new OpenMrsPatient()
+            {
+                Name = new List<OpenMrsPatientName> { new OpenMrsPatientName() { Text = patientName } },
+                Gender = OpenMrsGender.Female,
+                BirthDate = "1999",
+                Id = patientUuid,
+            };
+
+            var hipPatient = openMrsPatient.ToHipPatient(patientName);
+
+            hipPatient.Uuid.Should().Be(patientUuid);
         }
     }
 }
