@@ -14,24 +14,24 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     [Collection("DataFlowRepository Tests")]
     public class OpenMrsDataFlowRepositoryTest
     {
+        private readonly Mock<IOpenMrsClient> openmrsClientMock;
+        private readonly OpenMrsDataFlowRepository dataFlowRepository;
+
+        public OpenMrsDataFlowRepositoryTest()
+        {
+            openmrsClientMock = new Mock<IOpenMrsClient>();
+            dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
+        }
+
         [Fact]
         public async Task LoadObservationsForVisits_ShouldReturnListOfObservations()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(PatientVisitsSample)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, PatientVisitsSample);
 
             //When
             var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
@@ -49,20 +49,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string sampleData)
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(sampleData)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, sampleData);
 
             //When
             var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
@@ -75,8 +66,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public void LoadObservationsForVisits_ShouldReturnError_WhenNoPatientReferenceNumber()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = string.Empty;
 
             //When
@@ -92,20 +81,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadDiagnosticReportForVisits_ShouldReturnVisitDiagnoses()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(PatientVisitsSampleWithDiagnosis)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, PatientVisitsSampleWithDiagnosis);
 
             //When
             var diagnosis = await dataFlowRepository.LoadDiagnosticReportForVisits(patientReferenceNumber, "OPD");
@@ -120,20 +100,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound(string sampleData)
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(sampleData)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, sampleData);
 
             //When
             var diagnosis = await dataFlowRepository.LoadDiagnosticReportForVisits(patientReferenceNumber, "OPD");
@@ -146,20 +117,10 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadMedicationForVisits_ShouldReturnVisitmedication()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
-
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(PatientVisitsSampleWithMedication)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, PatientVisitsSampleWithMedication);
 
             //When
             var medication = await dataFlowRepository.LoadMedicationForVisits(patientReferenceNumber, "OPD");
@@ -172,20 +133,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadMedicationForVisits_ShouldReturnEmptyList_WhenNoOrdersFound()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(sampleDataWithoutOrders)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, sampleDataWithoutOrders);
 
             //When
             var medications = await dataFlowRepository.LoadMedicationForVisits(patientReferenceNumber, "OPD");
@@ -197,20 +149,11 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadConditionForVisits_ShouldReturnVisitCondition()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
 
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(PatientVisitsSampleWithCondition)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, PatientVisitsSampleWithCondition);
 
             var conditions = await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
 
@@ -222,25 +165,28 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         public async Task LoadConditionForVisits__ShouldReturnEmptyList_WhenNoConditionsFound()
         {
             //Given
-            var openmrsClientMock = new Mock<IOpenMrsClient>();
-            var dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
-
-            openmrsClientMock
-                .Setup(x => x.GetAsync(path))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(PatientVisitsSampleNoCondition)
-                })
-                .Verifiable();
+            openMrsClientReturnsVisits(path, PatientVisitsSampleNoCondition);
 
             var conditions = await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
 
             //Then
             Assert.Empty(conditions);
+        }
+
+
+        private void openMrsClientReturnsVisits(string path, string response)
+        {
+            openmrsClientMock
+                .Setup(x => x.GetAsync(path))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(response)
+                })
+                .Verifiable();
         }
         private const string PatientVisitsSampleNoCondition = @"[]";
 
