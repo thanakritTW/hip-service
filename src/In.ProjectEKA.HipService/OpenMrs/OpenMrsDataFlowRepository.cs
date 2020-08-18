@@ -69,19 +69,25 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 {
                     var encounters = results[i].GetProperty("encounters");
                     {
-                        for (int j = 0; j < encounters.GetArrayLength(); j++)
+                        if (encounters.GetArrayLength() != 0)
                         {
-                            var obs = encounters[j].GetProperty("obs");
+                            for (int j = 0; j < encounters.GetArrayLength(); j++)
                             {
-                                for (int k = 0; k < obs.GetArrayLength(); k++)
+                                var obs = encounters[j].GetProperty("obs");
                                 {
-                                    if (obs[k].TryGetProperty("display", out var obsDisplay) && obsDisplay.GetString().Contains(diagnosisVisit))
+                                    if (obs.GetArrayLength() != 0)
                                     {
-                                        diagnosis.Add(new Diagnosis(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
+                                        for (int k = 0; k < obs.GetArrayLength(); k++)
+                                        {
+                                            if (obs[k].TryGetProperty("display", out var obsDisplay) && obsDisplay.GetString().Contains(diagnosisVisit))
+                                            {
+                                                diagnosis.Add(new Diagnosis(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
+                                            }
+                                        }
                                     }
                                 }
-                            }
 
+                            }
                         }
                     }
                 }
@@ -120,8 +126,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return medications;
         }
 
-        public async Task<List<Condition>> LoadConditionsForVisit( string patientReferenceNumber){
-            var conditions =new List<Condition>();
+        public async Task<List<Condition>> LoadConditionsForVisit(string patientReferenceNumber)
+        {
+            var conditions = new List<Condition>();
             var path = DataFlowPathConstants.OnConditionPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (!string.IsNullOrEmpty(patientReferenceNumber))
@@ -132,7 +139,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 path = $"{path}?{query}";
             }
-            
+
             var response = await openMrsClient.GetAsync(path);
             var content = await response.Content.ReadAsStringAsync();
 
@@ -141,16 +148,17 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                var condition=results[i].GetProperty("conditions");
-                for(int j=0;j<condition.GetArrayLength();j++){
-                var concept=condition[j].GetProperty("concept");
+                var condition = results[i].GetProperty("conditions");
+                for (int j = 0; j < condition.GetArrayLength(); j++)
+                {
+                    var concept = condition[j].GetProperty("concept");
                     conditions.Add(new Condition(condition[j].GetProperty("uuid").ToString(),
-                    new Concept(concept.GetProperty("uuid").ToString(),concept.GetProperty("name").ToString()),
+                    new Concept(concept.GetProperty("uuid").ToString(), concept.GetProperty("name").ToString()),
                     condition[j].GetProperty("conditionNonCoded").ToString(),
                     condition[j].GetProperty("status").ToString()));
                 }
             }
-            
+
             return conditions;
         }
         private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
