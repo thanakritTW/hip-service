@@ -1,0 +1,506 @@
+{
+    "results": [
+{
+    "uuid": "76642da9-5a2b-455e-ac30-312de339e215",
+    "display": "OPD @ Ganiyari - 05/05/2017 03:07 PM",
+    "patient": {
+        "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+        "display": "GAN203009 - Test Hypertension",
+        "links": [
+            {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+            }
+        ]
+    },
+    "visitType": {
+        "uuid": "c22a5000-3f10-11e4-adec-0800271c1b75",
+        "display": "OPD",
+        "links": [
+            {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/visittype/c22a5000-3f10-11e4-adec-0800271c1b75"
+            }
+        ]
+    },
+    "indication": null,
+    "location": {
+        "uuid": "c1e42932-3f10-11e4-adec-0800271c1b75",
+        "display": "Ganiyari",
+        "links": [
+            {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/c1e42932-3f10-11e4-adec-0800271c1b75"
+            }
+        ]
+    },
+    "startDatetime": "2017-05-05T15:07:26.000+0800",
+    "stopDatetime": "2017-05-18T14:42:47.000+0800",
+    "encounters": [
+        {
+            "uuid": "ac369187-d04a-4aa2-bd8e-7c2e95e80c84",
+            "display": "Consultation 05/18/2017",
+            "encounterDatetime": "2017-05-18T14:42:47.000+0800",
+            "patient": {
+                "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+                "display": "GAN203009 - Test Hypertension",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                    }
+                ]
+            },
+            "location": {
+                "uuid": "baf7bd38-d225-11e4-9c67-080027b662ec",
+                "display": "General Ward",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/baf7bd38-d225-11e4-9c67-080027b662ec"
+                    }
+                ]
+            },
+            "form": null,
+            "encounterType": {
+                "uuid": "81852aee-3f10-11e4-adec-0800271c1b75",
+                "display": "Consultation",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/81852aee-3f10-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "obs": [
+                {
+                    "uuid": "51b2349f-316d-4366-9163-f00f6699ad15",
+                    "display": "Vitals: true, 90.0, Sitting, 130.0, false",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/51b2349f-316d-4366-9163-f00f6699ad15"
+                        }
+                    ]
+                }
+            ],
+            "orders": [],
+            "voided": false,
+            "visit": {
+                "uuid": "76642da9-5a2b-455e-ac30-312de339e215",
+                "display": "OPD @ Ganiyari - 05/05/2017 03:07 PM",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215"
+                    }
+                ]
+            },
+            "encounterProviders": [
+                {
+                    "uuid": "70e0e7f9-2a75-4be9-bbf8-1037ff6a4832",
+                    "display": "Super Man: Unknown",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/ac369187-d04a-4aa2-bd8e-7c2e95e80c84/encounterprovider/70e0e7f9-2a75-4be9-bbf8-1037ff6a4832"
+                        }
+                    ]
+                }
+            ],
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/ac369187-d04a-4aa2-bd8e-7c2e95e80c84"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/ac369187-d04a-4aa2-bd8e-7c2e95e80c84?v=full"
+                }
+            ],
+            "resourceVersion": "1.9"
+        },
+        {
+            "uuid": "a8dd660f-e582-4a7a-b167-6a934697bac3",
+            "display": "LAB_RESULT 05/05/2017",
+            "encounterDatetime": "2017-05-05T16:36:36.000+0800",
+            "patient": {
+                "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+                "display": "GAN203009 - Test Hypertension",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                    }
+                ]
+            },
+            "location": {
+                "uuid": "c58e12ed-3f12-11e4-adec-0800271c1b75",
+                "display": "OPD-1",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/c58e12ed-3f12-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "form": null,
+            "encounterType": {
+                "uuid": "82024e00-3f10-11e4-adec-0800271c1b75",
+                "display": "LAB_RESULT",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/82024e00-3f10-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "obs": [
+                {
+                    "uuid": "ce574095-df86-485b-8e33-e2e69872c453",
+                    "display": "LDL: ",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/ce574095-df86-485b-8e33-e2e69872c453"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "ac481b5f-966f-47cd-b084-67d967b3c35e",
+                    "display": "Kidney Function: ",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/ac481b5f-966f-47cd-b084-67d967b3c35e"
+                        }
+                    ]
+                }
+            ],
+            "orders": [],
+            "voided": false,
+            "visit": {
+                "uuid": "76642da9-5a2b-455e-ac30-312de339e215",
+                "display": "OPD @ Ganiyari - 05/05/2017 03:07 PM",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215"
+                    }
+                ]
+            },
+            "encounterProviders": [
+                {
+                    "uuid": "d6508bc8-a808-48bf-8777-3fb9d42055df",
+                    "display": "labsystem system: Unknown",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/a8dd660f-e582-4a7a-b167-6a934697bac3/encounterprovider/d6508bc8-a808-48bf-8777-3fb9d42055df"
+                        }
+                    ]
+                }
+            ],
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/a8dd660f-e582-4a7a-b167-6a934697bac3"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/a8dd660f-e582-4a7a-b167-6a934697bac3?v=full"
+                }
+            ],
+            "resourceVersion": "1.9"
+        },
+        {
+            "uuid": "15da42b1-a535-4330-b228-8a6530c89cb9",
+            "display": "Consultation 05/05/2017",
+            "encounterDatetime": "2017-05-05T16:36:36.000+0800",
+            "patient": {
+                "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+                "display": "GAN203009 - Test Hypertension",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                    }
+                ]
+            },
+            "location": {
+                "uuid": "c58e12ed-3f12-11e4-adec-0800271c1b75",
+                "display": "OPD-1",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/c58e12ed-3f12-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "form": null,
+            "encounterType": {
+                "uuid": "81852aee-3f10-11e4-adec-0800271c1b75",
+                "display": "Consultation",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/81852aee-3f10-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "obs": [
+                {
+                    "uuid": "3be53600-7934-41ba-a043-daa04021fc61",
+                    "display": "History and Examination: false, blood spot in the eye, 4320.0",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/3be53600-7934-41ba-a043-daa04021fc61"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "da7e38f7-57a2-46b4-a604-7c7dfe1c5519",
+                    "display": "Hypertension, Intake: false, false, false, No Previous Diagnosis, 2017-05-05",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/da7e38f7-57a2-46b4-a604-7c7dfe1c5519"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "a5e9f749-4bd5-43b4-b5e5-886f0eccc09f",
+                    "display": "Visit Diagnoses: Primary, Confirmed, Hypertension, unspec., a5e9f749-4bd5-43b4-b5e5-886f0eccc09f, false",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/a5e9f749-4bd5-43b4-b5e5-886f0eccc09f"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "9208c68e-bee7-4169-9c37-c6278e69c21b",
+                    "display": "Vitals: 97.0, false, 86.0, true, true, 22.0, 100.0, true, 160.0, true, Sitting, 98.6, false",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/9208c68e-bee7-4169-9c37-c6278e69c21b"
+                        }
+                    ]
+                }
+            ],
+            "orders": [],
+            "voided": false,
+            "visit": {
+                "uuid": "76642da9-5a2b-455e-ac30-312de339e215",
+                "display": "OPD @ Ganiyari - 05/05/2017 03:07 PM",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215"
+                    }
+                ]
+            },
+            "encounterProviders": [
+                {
+                    "uuid": "acfe506b-8ef2-4365-8921-f3093ad082e3",
+                    "display": "Super Man: Unknown",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/15da42b1-a535-4330-b228-8a6530c89cb9/encounterprovider/acfe506b-8ef2-4365-8921-f3093ad082e3"
+                        }
+                    ]
+                }
+            ],
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/15da42b1-a535-4330-b228-8a6530c89cb9"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/15da42b1-a535-4330-b228-8a6530c89cb9?v=full"
+                }
+            ],
+            "resourceVersion": "1.9"
+        },
+        {
+            "uuid": "93df5a9e-1507-4022-93a4-ffbdd16d46f3",
+            "display": "REG 05/05/2017",
+            "encounterDatetime": "2017-05-05T15:07:45.000+0800",
+            "patient": {
+                "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+                "display": "GAN203009 - Test Hypertension",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                    }
+                ]
+            },
+            "location": {
+                "uuid": "bb0e512e-d225-11e4-9c67-080027b662ec",
+                "display": "Labour Ward",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/bb0e512e-d225-11e4-9c67-080027b662ec"
+                    }
+                ]
+            },
+            "form": null,
+            "encounterType": {
+                "uuid": "81888515-3f10-11e4-adec-0800271c1b75",
+                "display": "REG",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/81888515-3f10-11e4-adec-0800271c1b75"
+                    }
+                ]
+            },
+            "obs": [
+                {
+                    "uuid": "11057e47-f631-47ea-abb1-840404aeb67f",
+                    "display": "BMI Data: false, 21.33",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/11057e47-f631-47ea-abb1-840404aeb67f"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "a14732d9-36c5-47f3-8272-4dd573faeeba",
+                    "display": "Nutritional Values: ",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/a14732d9-36c5-47f3-8272-4dd573faeeba"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "ff132a9c-35c6-4102-9778-9139466a593f",
+                    "display": "Fee Information: 10.0",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/ff132a9c-35c6-4102-9778-9139466a593f"
+                        }
+                    ]
+                },
+                {
+                    "uuid": "af8db28c-a16d-49dc-a4be-cc283e881e4d",
+                    "display": "BMI Status Data: Normal, false",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/af8db28c-a16d-49dc-a4be-cc283e881e4d"
+                        }
+                    ]
+                }
+            ],
+            "orders": [],
+            "voided": false,
+            "visit": {
+                "uuid": "76642da9-5a2b-455e-ac30-312de339e215",
+                "display": "OPD @ Ganiyari - 05/05/2017 03:07 PM",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215"
+                    }
+                ]
+            },
+            "encounterProviders": [
+                {
+                    "uuid": "7d81380b-b443-4288-b5a7-9041387e28b5",
+                    "display": "Super Man: Unknown",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/93df5a9e-1507-4022-93a4-ffbdd16d46f3/encounterprovider/7d81380b-b443-4288-b5a7-9041387e28b5"
+                        }
+                    ]
+                }
+            ],
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/93df5a9e-1507-4022-93a4-ffbdd16d46f3"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/93df5a9e-1507-4022-93a4-ffbdd16d46f3?v=full"
+                }
+            ],
+            "resourceVersion": "1.9"
+        }
+    ],
+    "attributes": [
+        {
+            "display": "Visit Status: OPD",
+            "uuid": "1ccc20ef-7e7d-44c1-a2a1-99a2302a436e",
+            "attributeType": {
+                "uuid": "ff25b0f3-e276-11e4-900f-080027b662ec",
+                "display": "Visit Status",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://localhost:8050/openmrs/ws/rest/v1/visitattributetype/ff25b0f3-e276-11e4-900f-080027b662ec"
+                    }
+                ]
+            },
+            "value": "OPD",
+            "voided": false,
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215/attribute/1ccc20ef-7e7d-44c1-a2a1-99a2302a436e"
+                },
+                {
+                    "rel": "full",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215/attribute/1ccc20ef-7e7d-44c1-a2a1-99a2302a436e?v=full"
+                }
+            ],
+            "resourceVersion": "1.9"
+        }
+    ],
+    "voided": false,
+    "auditInfo": {
+        "creator": {
+            "uuid": "c1c21e11-3f10-11e4-adec-0800271c1b75",
+            "display": "superman",
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/user/c1c21e11-3f10-11e4-adec-0800271c1b75"
+                }
+            ]
+        },
+        "dateCreated": "2017-05-05T15:07:26.000+0800",
+        "changedBy": {
+            "uuid": "A4F30A1B-5EB9-11DF-A648-37A07F9C90FB",
+            "display": "daemon",
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/user/A4F30A1B-5EB9-11DF-A648-37A07F9C90FB"
+                }
+            ]
+        },
+        "dateChanged": "2017-05-31T23:59:59.000+0800"
+    },
+    "links": [
+        {
+            "rel": "self",
+            "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/76642da9-5a2b-455e-ac30-312de339e215"
+        }
+    ],
+    "resourceVersion": "1.9"
+}
+]
+}
