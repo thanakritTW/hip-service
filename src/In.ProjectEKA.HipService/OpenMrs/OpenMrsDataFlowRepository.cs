@@ -141,6 +141,10 @@ namespace In.ProjectEKA.HipService.OpenMrs
             {
                 query["patientUuid"] = patientReferenceNumber;
             }
+            else
+            {
+                throw new OpenMrsFormatException();
+            }
             if (query.ToString() != "")
             {
                 path = $"{path}?{query}";

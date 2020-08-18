@@ -307,6 +307,21 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             Assert.Empty(conditions);
         }
+        [Fact]
+        public void LoadConditionsForVisit_ShouldReturnError_WhenNoPatientReferenceNumber()
+        {
+            //Given
+            var patientReferenceNumber = string.Empty;
+
+            //When
+            Func<Task> loadConditionsForVisit= async () =>
+            {
+                await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
+            };
+
+            //Then
+            loadConditionsForVisit.Should().Throw<OpenMrsFormatException>();
+        }
 
 
         private void openMrsClientReturnsVisits(string path, string response)
