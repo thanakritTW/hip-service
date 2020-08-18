@@ -109,16 +109,22 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 {
                     var encounters = results[i].GetProperty("encounters");
                     {
-                        for (int j = 0; j < encounters.GetArrayLength(); j++)
+                        if (encounters.GetArrayLength() != 0)
                         {
-                            var orders = encounters[j].GetProperty("orders");
+                            for (int j = 0; j < encounters.GetArrayLength(); j++)
                             {
-                                for (int k = 0; k < orders.GetArrayLength(); k++)
+                                var orders = encounters[j].GetProperty("orders");
                                 {
-                                    medications.Add(new Medication(orders[k].GetProperty("uuid").ToString(), orders[k].GetProperty("display").ToString(), orders[k].GetProperty("type").ToString()));
+                                    if (orders.GetArrayLength() != 0)
+                                    {
+                                        for (int k = 0; k < orders.GetArrayLength(); k++)
+                                        {
+                                            medications.Add(new Medication(orders[k].GetProperty("uuid").ToString(), orders[k].GetProperty("display").ToString(), orders[k].GetProperty("type").ToString()));
+                                        }
+                                    }
                                 }
-                            }
 
+                            }
                         }
                     }
                 }

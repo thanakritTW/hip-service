@@ -62,14 +62,14 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
         [Theory]
         [MemberData(nameof(GetPatientVisitsWithNoObservation), parameters: 4)]
-        public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string PatientVisits)
+        public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string patientVisits)
         {
             //Given
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
-            openMrsClientReturnsVisits(path, PatientVisits);
+            openMrsClientReturnsVisits(path, patientVisits);
 
             //When
             var observations = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "OPD");
@@ -146,13 +146,13 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
         [Theory]
         [MemberData(nameof(GetPatientVisitsWithNoDiagnosis), parameters: 5)]
-        public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound(string PatientVisits)
+        public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound(string patientVisits)
         {
             //Given
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
-            openMrsClientReturnsVisits(path, PatientVisits);
+            openMrsClientReturnsVisits(path, patientVisits);
 
             var diagnosis = await dataFlowRepository.LoadDiagnosticReportForVisits(patientReferenceNumber, "OPD");
 
@@ -181,18 +181,18 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var patientReferenceNumber = string.Empty;
 
             //When
-            Func<Task> loadObservationsForVisits = async () =>
+            Func<Task> loadDiagnosticReportForVisits = async () =>
             {
                 await dataFlowRepository.LoadDiagnosticReportForVisits(patientReferenceNumber, "OPD");
             };
 
             //Then
-            loadObservationsForVisits.Should().Throw<OpenMrsFormatException>();
+            loadDiagnosticReportForVisits.Should().Throw<OpenMrsFormatException>();
         }
 
 
         [Fact]
-        public async Task LoadMedicationForVisits_ShouldReturnVisitmedication()
+        public async Task LoadMedicationForVisits_ShouldReturnVisitMedication()
         {
             //Given
             var patientReferenceNumber = "123";
@@ -209,16 +209,32 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             firstOrder.Display.Should().Be("(NEW) Losartan 50mg: null");
         }
 
-        [Fact]
-        public async Task LoadMedicationForVisits_ShouldReturnEmptyList_WhenNoOrdersFound()
+        public static IEnumerable<object[]> GetPatientVisitsWithNoOrders(int numTests)
+        {
+            var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
+            var PatientVisitsWithoutOrder = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutOrders.json");
+            var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
+            var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
+            var sampleData = new List<object[]>
+            {
+              new object[] {PatientVisitsWithoutVisitType},
+              new object[] {PatientVisitsWithoutOrder},
+              new object[]{PatientVisitsWithoutVisits},
+              new object[]{PatientVisitsWithoutEncounters},
+
+            };
+            return sampleData.Take(numTests);
+        }
+        [Theory]
+        [MemberData(nameof(GetPatientVisitsWithNoOrders), parameters: 4)]
+        public async Task LoadMedicationForVisits_ShouldReturnEmptyList_WhenNoOrdersFound(string patientVisits)
         {
             //Given
             var patientReferenceNumber = "123";
 
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
-            var PatientVisitsWithoutOrder = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutOrders.json");
 
-            openMrsClientReturnsVisits(path, PatientVisitsWithoutOrder);
+            openMrsClientReturnsVisits(path, patientVisits);
 
             //When
             var medications = await dataFlowRepository.LoadMedicationForVisits(patientReferenceNumber, "OPD");
@@ -226,6 +242,38 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             Assert.Empty(medications);
         }
+        [Fact]
+        public async Task LoadMedicationForVisits_ShouldReturnEmptyList_WhenVisitTypeIsIncorect()
+        {
+            //Given
+            var patientReferenceNumber = "123";
+
+            var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
+            var PatientVisitsWithMedication = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithMedication.json");
+            openMrsClientReturnsVisits(path, PatientVisitsWithMedication);
+
+            var medications = await dataFlowRepository.LoadObservationsForVisits(patientReferenceNumber, "");
+
+            //Then
+            Assert.Empty(medications);
+            
+        }
+        [Fact]
+        public void LoadMedicationForVisits_ShouldReturnError_WhenNoPatientReferenceNumber()
+        {
+            //Given
+            var patientReferenceNumber = string.Empty;
+
+            //When
+            Func<Task> loadMedicationForVisits = async () =>
+            {
+                await dataFlowRepository.LoadMedicationForVisits(patientReferenceNumber, "OPD");
+            };
+
+            //Then
+            loadMedicationForVisits.Should().Throw<OpenMrsFormatException>();
+        }
+
         [Fact]
         public async Task LoadConditionForVisits_ShouldReturnVisitCondition()
         {
