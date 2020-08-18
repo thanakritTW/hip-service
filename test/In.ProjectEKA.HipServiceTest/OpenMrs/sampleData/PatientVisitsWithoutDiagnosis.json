@@ -1,0 +1,284 @@
+{
+    "results": [
+      {
+        "uuid": "f341f996-f714-4763-9d19-6287cb609758",
+        "display": "OPD @ General Ward - 08/17/2020 12:21 PM",
+        "patient": {
+          "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+          "display": "GAN203009 - Test Hypertension",
+          "links": [
+            {
+              "rel": "self",
+              "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+            }
+          ]
+        },
+        "visitType": {
+          "uuid": "c22a5000-3f10-11e4-adec-0800271c1b75",
+          "display": "OPD",
+          "links": [
+            {
+              "rel": "self",
+              "uri": "http://localhost:8050/openmrs/ws/rest/v1/visittype/c22a5000-3f10-11e4-adec-0800271c1b75"
+            }
+          ]
+        },
+        "indication": null,
+        "location": {
+          "uuid": "baf7bd38-d225-11e4-9c67-080027b662ec",
+          "display": "General Ward",
+          "links": [
+            {
+              "rel": "self",
+              "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/baf7bd38-d225-11e4-9c67-080027b662ec"
+            }
+          ]
+        },
+        "startDatetime": "2020-08-17T12:21:49.000+0800",
+        "stopDatetime": null,
+        "encounters": [
+          {
+            "uuid": "023a324e-539a-46e9-9d16-c6313393c04c",
+            "display": "Consultation 08/17/2020",
+            "encounterDatetime": "2020-08-17T12:23:42.000+0800",
+            "patient": {
+              "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+              "display": "GAN203009 - Test Hypertension",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                }
+              ]
+            },
+            "location": {
+              "uuid": "baf7bd38-d225-11e4-9c67-080027b662ec",
+              "display": "General Ward",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/baf7bd38-d225-11e4-9c67-080027b662ec"
+                }
+              ]
+            },
+            "form": null,
+            "encounterType": {
+              "uuid": "81852aee-3f10-11e4-adec-0800271c1b75",
+              "display": "Consultation",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/81852aee-3f10-11e4-adec-0800271c1b75"
+                }
+              ]
+            },
+            "obs": [],
+            "orders": [
+              {
+                "uuid": "e25e271d-76c7-4ffe-a205-87f509b06282",
+                "display": "(NEW) Losartan 50mg: null",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/order/e25e271d-76c7-4ffe-a205-87f509b06282"
+                  }
+                ],
+                "type": "drugorder"
+              },
+              {
+                "uuid": "d9470260-09f2-422a-b239-8e9e6bb4b309",
+                "display": "(DISCONTINUE) Losartan 50mg",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/order/d9470260-09f2-422a-b239-8e9e6bb4b309"
+                  }
+                ],
+                "type": "drugorder"
+              },
+              {
+                "uuid": "bf556c5b-92e4-49b6-9014-340f75a7930e",
+                "display": "(NEW) Losartan 50mg: null",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/order/bf556c5b-92e4-49b6-9014-340f75a7930e"
+                  }
+                ],
+                "type": "drugorder"
+              }
+            ],
+            "voided": false,
+            "visit": {
+              "uuid": "f341f996-f714-4763-9d19-6287cb609758",
+              "display": "OPD @ General Ward - 08/17/2020 12:21 PM",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/f341f996-f714-4763-9d19-6287cb609758"
+                }
+              ]
+            },
+            "encounterProviders": [
+              {
+                "uuid": "ffbe55f5-eb92-4107-bf8d-8734e419026e",
+                "display": "Super Man: Unknown",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/023a324e-539a-46e9-9d16-c6313393c04c/encounterprovider/ffbe55f5-eb92-4107-bf8d-8734e419026e"
+                  }
+                ]
+              }
+            ],
+            "links": [
+              {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/023a324e-539a-46e9-9d16-c6313393c04c"
+              },
+              {
+                "rel": "full",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/023a324e-539a-46e9-9d16-c6313393c04c?v=full"
+              }
+            ],
+            "resourceVersion": "1.9"
+          },
+          {
+            "uuid": "efa793f4-1469-4e46-a137-f7d59a73e629",
+            "display": "REG 08/17/2020",
+            "encounterDatetime": "2020-08-17T12:21:54.000+0800",
+            "patient": {
+              "uuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+              "display": "GAN203009 - Test Hypertension",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/patient/3ae1ee52-e9b2-4934-876d-30711c0e3e2f"
+                }
+              ]
+            },
+            "location": {
+              "uuid": "baf7bd38-d225-11e4-9c67-080027b662ec",
+              "display": "General Ward",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/location/baf7bd38-d225-11e4-9c67-080027b662ec"
+                }
+              ]
+            },
+            "form": null,
+            "encounterType": {
+              "uuid": "81888515-3f10-11e4-adec-0800271c1b75",
+              "display": "REG",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/encountertype/81888515-3f10-11e4-adec-0800271c1b75"
+                }
+              ]
+            },
+            "obs": [
+              {
+                "uuid": "c085f35e-cc01-48d8-b00a-dbe64704f606",
+                "display": "Fee Information: 10.0",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/obs/c085f35e-cc01-48d8-b00a-dbe64704f606"
+                  }
+                ]
+              }
+            ],
+            "orders": [],
+            "voided": false,
+            "visit": {
+              "uuid": "f341f996-f714-4763-9d19-6287cb609758",
+              "display": "OPD @ General Ward - 08/17/2020 12:21 PM",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/f341f996-f714-4763-9d19-6287cb609758"
+                }
+              ]
+            },
+            "encounterProviders": [
+              {
+                "uuid": "6ef333f3-bb59-489a-b44d-3a6b4b1cfd3c",
+                "display": "Super Man: Unknown",
+                "links": [
+                  {
+                    "rel": "self",
+                    "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/efa793f4-1469-4e46-a137-f7d59a73e629/encounterprovider/6ef333f3-bb59-489a-b44d-3a6b4b1cfd3c"
+                  }
+                ]
+              }
+            ],
+            "links": [
+              {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/efa793f4-1469-4e46-a137-f7d59a73e629"
+              },
+              {
+                "rel": "full",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/encounter/efa793f4-1469-4e46-a137-f7d59a73e629?v=full"
+              }
+            ],
+            "resourceVersion": "1.9"
+          }
+        ],
+        "attributes": [
+          {
+            "display": "Visit Status: OPD",
+            "uuid": "57e83405-8131-4efe-8e99-617ec8b254a0",
+            "attributeType": {
+              "uuid": "ff25b0f3-e276-11e4-900f-080027b662ec",
+              "display": "Visit Status",
+              "links": [
+                {
+                  "rel": "self",
+                  "uri": "http://localhost:8050/openmrs/ws/rest/v1/visitattributetype/ff25b0f3-e276-11e4-900f-080027b662ec"
+                }
+              ]
+            },
+            "value": "OPD",
+            "voided": false,
+            "links": [
+              {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/f341f996-f714-4763-9d19-6287cb609758/attribute/57e83405-8131-4efe-8e99-617ec8b254a0"
+              },
+              {
+                "rel": "full",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/f341f996-f714-4763-9d19-6287cb609758/attribute/57e83405-8131-4efe-8e99-617ec8b254a0?v=full"
+              }
+            ],
+            "resourceVersion": "1.9"
+          }
+        ],
+        "voided": false,
+        "auditInfo": {
+          "creator": {
+            "uuid": "c1c21e11-3f10-11e4-adec-0800271c1b75",
+            "display": "superman",
+            "links": [
+              {
+                "rel": "self",
+                "uri": "http://localhost:8050/openmrs/ws/rest/v1/user/c1c21e11-3f10-11e4-adec-0800271c1b75"
+              }
+            ]
+          },
+          "dateCreated": "2020-08-17T12:21:49.000+0800",
+          "changedBy": null,
+          "dateChanged": null
+        },
+        "links": [
+          {
+            "rel": "self",
+            "uri": "http://localhost:8050/openmrs/ws/rest/v1/visit/f341f996-f714-4763-9d19-6287cb609758"
+          }
+        ],
+        "resourceVersion": "1.9"
+      }
+    ]
+  }

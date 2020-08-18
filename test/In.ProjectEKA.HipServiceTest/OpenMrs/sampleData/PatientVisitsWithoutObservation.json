@@ -1,0 +1,176 @@
+{
+    "results": [
+        {
+            "uuid": "ff633a82-43ac-45b0-94d8-3a06d379c0ab",
+            "display": "OPD @ Odisha - 08/11/2020 11:25 AM",
+            "patient": {
+                "uuid": "9da1a756-aa62-46fd-b56d-e35a6d2f2b30",
+                "display": "OD100013 - Patient test one",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/9da1a756-aa62-46fd-b56d-e35a6d2f2b30"
+                    }
+                ]
+            },
+            "visitType": {
+                "uuid": "96c49059-9af1-4f63-a8be-7554984fda02",
+                "display": "OPD",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visittype/96c49059-9af1-4f63-a8be-7554984fda02"
+                    }
+                ]
+            },
+            "indication": null,
+            "location": {
+                "uuid": "8d6c993e-c2cc-11de-8d13-0010c6dffd0f",
+                "display": "Odisha",
+                "links": [
+                    {
+                        "rel": "self",
+                        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/location/8d6c993e-c2cc-11de-8d13-0010c6dffd0f"
+                    }
+                ]
+            },
+            "startDatetime": "2020-08-11T11:25:16.000+0530",
+            "stopDatetime": "2020-08-11T11:26:40.000+0530",
+            "encounters": [
+                {
+                    "uuid": "e3b9cdcf-9f42-489f-b465-eb382923cd22",
+                    "display": "Consultation 08/11/2020",
+                    "encounterDatetime": "2020-08-11T11:26:40.000+0530",
+                    "patient": {
+                        "uuid": "9da1a756-aa62-46fd-b56d-e35a6d2f2b30",
+                        "display": "OD100013 - Patient test one",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/9da1a756-aa62-46fd-b56d-e35a6d2f2b30"
+                            }
+                        ]
+                    },
+                    "location": {
+                        "uuid": "6b8e123c-8522-4f71-8f80-0a893439bbce",
+                        "display": "OPD",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/location/6b8e123c-8522-4f71-8f80-0a893439bbce"
+                            }
+                        ]
+                    },
+                    "form": null,
+                    "encounterType": {
+                        "uuid": "7e10b3cb-e42f-11e5-8c3e-08002715d519",
+                        "display": "Consultation",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/encountertype/7e10b3cb-e42f-11e5-8c3e-08002715d519"
+                            }
+                        ]
+                    },
+                    "obs": [],
+                    "orders": [],
+                    "voided": false,
+                    "visit": {
+                        "uuid": "ff633a82-43ac-45b0-94d8-3a06d379c0ab",
+                        "display": "OPD @ Odisha - 08/11/2020 11:25 AM",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visit/ff633a82-43ac-45b0-94d8-3a06d379c0ab"
+                            }
+                        ]
+                    },
+                    "encounterProviders": [
+                        {
+                            "uuid": "3bf6e3d0-31ab-41ee-aa8c-118c99f48d5f",
+                            "display": "super man: Unknown",
+                            "links": [
+                                {
+                                    "rel": "self",
+                                    "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/encounter/e3b9cdcf-9f42-489f-b465-eb382923cd22/encounterprovider/3bf6e3d0-31ab-41ee-aa8c-118c99f48d5f"
+                                }
+                            ]
+                        }
+                    ],
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/encounter/e3b9cdcf-9f42-489f-b465-eb382923cd22"
+                        },
+                        {
+                            "rel": "full",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/encounter/e3b9cdcf-9f42-489f-b465-eb382923cd22?v=full"
+                        }
+                    ],
+                    "resourceVersion": "1.9"
+                }
+            ],
+            "attributes": [
+                {
+                    "display": "Visit Status: OPD",
+                    "uuid": "b5f18330-a072-4894-bae0-4407e2c4548d",
+                    "attributeType": {
+                        "uuid": "7f7bd8d8-e42f-11e5-8c3e-08002715d519",
+                        "display": "Visit Status",
+                        "links": [
+                            {
+                                "rel": "self",
+                                "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visitattributetype/7f7bd8d8-e42f-11e5-8c3e-08002715d519"
+                            }
+                        ]
+                    },
+                    "value": "OPD",
+                    "voided": false,
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visit/ff633a82-43ac-45b0-94d8-3a06d379c0ab/attribute/b5f18330-a072-4894-bae0-4407e2c4548d"
+                        },
+                        {
+                            "rel": "full",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visit/ff633a82-43ac-45b0-94d8-3a06d379c0ab/attribute/b5f18330-a072-4894-bae0-4407e2c4548d?v=full"
+                        }
+                    ],
+                    "resourceVersion": "1.9"
+                }
+            ],
+            "voided": false,
+            "auditInfo": {
+                "creator": {
+                    "uuid": "ed6cab31-46c9-4d78-b814-e79ddc406379",
+                    "display": "superman",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/user/ed6cab31-46c9-4d78-b814-e79ddc406379"
+                        }
+                    ]
+                },
+                "dateCreated": "2020-08-11T11:25:16.000+0530",
+                "changedBy": {
+                    "uuid": "A4F30A1B-5EB9-11DF-A648-37A07F9C90FB",
+                    "display": "daemon",
+                    "links": [
+                        {
+                            "rel": "self",
+                            "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/user/A4F30A1B-5EB9-11DF-A648-37A07F9C90FB"
+                        }
+                    ]
+                },
+                "dateChanged": "2020-08-11T23:59:59.000+0530"
+            },
+            "links": [
+                {
+                    "rel": "self",
+                    "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/visit/ff633a82-43ac-45b0-94d8-3a06d379c0ab"
+                }
+            ],
+            "resourceVersion": "1.9"
+        }
+    ]
+}
