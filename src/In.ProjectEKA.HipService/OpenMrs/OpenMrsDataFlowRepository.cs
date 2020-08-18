@@ -110,8 +110,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
                                         }
                                     }
                                 }
-                            }
 
+                            }
                         }
                     }
             });
