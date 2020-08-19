@@ -314,6 +314,24 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             loadConditionsForVisit.Should().Throw<OpenMrsFormatException>();
         }
+        [Fact]
+        public async Task LoadConditionForVisits_ShouldReturnVisitCodedCondition()
+        {
+            //Given
+            var patientReferenceNumber = "123";
+
+            var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
+            var PatientVisitsWithCondition = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithCodedCondition.json");
+
+
+            openMrsClientReturnsVisits(path, PatientVisitsWithCondition);
+
+            var conditions = await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
+
+            //Then
+            var firstCondition = conditions[0];
+            firstCondition.ConditionNonCoded.Should().Be(null);
+        }
 
         private void openMrsClientReturnsVisits(string path, string response)
         {
