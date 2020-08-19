@@ -43,30 +43,27 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             firstObservation.Display.Should().Be("Location of diagnosis: India");
         }
 
-        public static IEnumerable<object[]> GetPatientVisitsWithNoObservation(int numTests)
+        public static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
         {
             var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
             var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
             var PatientVisitsWithoutObservation = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutObservation.json");
             var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
 
-            var sampleData = new List<object[]>
-            {
-          new object[]{PatientVisitsWithoutVisits},
-          new object[]{PatientVisitsWithoutEncounters},
-          new object[]{PatientVisitsWithoutObservation},
-          new object[]{PatientVisitsWithoutVisitType}
-          };
-            return sampleData.Take(numTests);
+
+            yield return new object[] { PatientVisitsWithoutVisits };
+            yield return new object[] { PatientVisitsWithoutEncounters };
+            yield return new object[] { PatientVisitsWithoutObservation };
+            yield return new object[] { PatientVisitsWithoutVisitType };
+
         }
 
         [Theory]
-        [MemberData(nameof(GetPatientVisitsWithNoObservation), parameters: 4)]
+        [MemberData(nameof(GetPatientVisitsWithNoObservation))]
         public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string patientVisits)
         {
             //Given
             var patientReferenceNumber = "123";
-
             var path = $"{Endpoints.OpenMrs.OnVisitPath}?patient={patientReferenceNumber}&v=full";
 
             openMrsClientReturnsVisits(path, patientVisits);
@@ -126,26 +123,23 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var firstDiagnosis = diagnosis[0];
             firstDiagnosis.Display.Should().Be("Visit Diagnoses: Primary, Confirmed, Hypertension, unspec., a5e9f749-4bd5-43b4-b5e5-886f0eccc09f, false");
         }
-        public static IEnumerable<object[]> GetPatientVisitsWithNoDiagnosis(int numTests)
+        public static IEnumerable<object[]> GetPatientVisitsWithNoDiagnosis()
         {
             var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
-            var PatientVisitsWithoutDiagnosis = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
+            var PatientVisitsWithoutDiagnosis = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutDiagnosis.json");
             var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
             var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
             var PatientVisitsWithoutObservation = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutObservation.json");
-            var sampleData = new List<object[]>
-            {
-              new object[] {PatientVisitsWithoutVisitType},
-              new object[] {PatientVisitsWithoutDiagnosis},
-              new object[]{PatientVisitsWithoutVisits},
-              new object[]{PatientVisitsWithoutEncounters},
-              new object[]{PatientVisitsWithoutObservation}
 
-            };
-            return sampleData.Take(numTests);
+            yield return new object[] { PatientVisitsWithoutVisitType };
+            yield return new object[] { PatientVisitsWithoutDiagnosis };
+            yield return new object[] { PatientVisitsWithoutVisits };
+            yield return new object[] { PatientVisitsWithoutEncounters };
+            yield return new object[] { PatientVisitsWithoutObservation };
         }
+
         [Theory]
-        [MemberData(nameof(GetPatientVisitsWithNoDiagnosis), parameters: 5)]
+        [MemberData(nameof(GetPatientVisitsWithNoDiagnosis))]
         public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenNoDiagnosisFound(string patientVisits)
         {
             //Given
@@ -159,6 +153,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             Assert.Empty(diagnosis);
         }
+
         [Fact]
         public async Task LoadDiagnosticReportForVisits_ShouldReturnEmptyList_WhenVisitTypeIsIncorect()
         {
@@ -174,6 +169,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             Assert.Empty(diagnosis);
         }
+
         [Fact]
         public void LoadDiagnosticReportForVisits_ShouldReturnError_WhenNoPatientReferenceNumber()
         {
@@ -189,7 +185,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             loadDiagnosticReportForVisits.Should().Throw<OpenMrsFormatException>();
         }
-
 
         [Fact]
         public async Task LoadMedicationForVisits_ShouldReturnVisitMedication()
@@ -209,24 +204,21 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             firstOrder.Display.Should().Be("(NEW) Losartan 50mg: null");
         }
 
-        public static IEnumerable<object[]> GetPatientVisitsWithNoOrders(int numTests)
+        public static IEnumerable<object[]> GetPatientVisitsWithNoOrders()
         {
             var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
             var PatientVisitsWithoutOrder = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutOrders.json");
             var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
             var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
-            var sampleData = new List<object[]>
-            {
-              new object[] {PatientVisitsWithoutVisitType},
-              new object[] {PatientVisitsWithoutOrder},
-              new object[]{PatientVisitsWithoutVisits},
-              new object[]{PatientVisitsWithoutEncounters},
 
-            };
-            return sampleData.Take(numTests);
+            yield return new object[] { PatientVisitsWithoutVisitType };
+            yield return new object[] { PatientVisitsWithoutOrder };
+            yield return new object[] { PatientVisitsWithoutVisits };
+            yield return new object[] { PatientVisitsWithoutEncounters };
+
         }
         [Theory]
-        [MemberData(nameof(GetPatientVisitsWithNoOrders), parameters: 4)]
+        [MemberData(nameof(GetPatientVisitsWithNoOrders))]
         public async Task LoadMedicationForVisits_ShouldReturnEmptyList_WhenNoOrdersFound(string patientVisits)
         {
             //Given
@@ -256,7 +248,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
 
             //Then
             Assert.Empty(medications);
-            
+
         }
         [Fact]
         public void LoadMedicationForVisits_ShouldReturnError_WhenNoPatientReferenceNumber()
@@ -314,15 +306,14 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var patientReferenceNumber = string.Empty;
 
             //When
-            Func<Task> loadConditionsForVisit= async () =>
-            {
-                await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
-            };
+            Func<Task> loadConditionsForVisit = async () =>
+             {
+                 await dataFlowRepository.LoadConditionsForVisit(patientReferenceNumber);
+             };
 
             //Then
             loadConditionsForVisit.Should().Throw<OpenMrsFormatException>();
         }
-
 
         private void openMrsClientReturnsVisits(string path, string response)
         {
