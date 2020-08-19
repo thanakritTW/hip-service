@@ -162,10 +162,16 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 for (int j = 0; j < condition.GetArrayLength(); j++)
                 {
                     var concept = condition[j].GetProperty("concept");
-                    conditions.Add(new Condition(condition[j].GetProperty("uuid").GetString(),
-                    new Concept(concept.GetProperty("uuid").GetString(), concept.GetProperty("name").GetString()),
-                    condition[j].GetProperty("conditionNonCoded").GetString(),
-                    condition[j].GetProperty("status").GetString()));
+                    var onSetDateMilliseconds = condition[j].GetProperty("onSetDate").GetInt64();
+                    DateTime onSetDate = DateTimeOffset.FromUnixTimeMilliseconds(onSetDateMilliseconds).UtcDateTime;
+
+                    conditions.Add(new Condition(
+                        condition[j].GetProperty("uuid").GetString(),
+                        new Concept(concept.GetProperty("uuid").GetString(), concept.GetProperty("name").GetString()),
+                        condition[j].GetProperty("conditionNonCoded").GetString(),
+                        condition[j].GetProperty("status").GetString(),
+                        onSetDate
+                    ));
                 }
             }
 

@@ -283,6 +283,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             //Then
             var firstCondition = conditions[0];
             firstCondition.ConditionNonCoded.Should().Be("Former smoker");
+            firstCondition.OnSetDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1597602600000).UtcDateTime);
         }
         [Fact]
         public async Task LoadConditionForVisits__ShouldReturnEmptyList_WhenNoConditionsFound()
@@ -319,7 +320,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         {
             //Given
             var patientReferenceNumber = "123";
-
             var path = $"{Endpoints.EMRAPI.OnConditionPath}?patientUuid={patientReferenceNumber}";
             var PatientVisitsWithCondition = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithCodedCondition.json");
 
