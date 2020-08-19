@@ -1,0 +1,28 @@
+[
+  {
+    "conditionNonCoded": null,
+    "conceptUuid": "e4a391e6-4e14-11e4-8a57-0800271c1b75",
+    "conditions": [
+      {
+        "uuid": "5383a735-13f5-467a-a064-5674b3930b6c",
+        "patientUuid": "3ae1ee52-e9b2-4934-876d-30711c0e3e2f",
+        "concept": {
+          "uuid": "e4a391e6-4e14-11e4-8a57-0800271c1b75",
+          "name": "Hypertension, unspec.",
+          "shortName": null
+        },
+        "conditionNonCoded": null,
+        "status": "ACTIVE",
+        "onSetDate": 1493913600000,
+        "endDate": null,
+        "endReason": null,
+        "additionalDetail": "",
+        "voided": false,
+        "voidReason": null,
+        "creator": "Super Man (superman)",
+        "dateCreated": 1493973464000,
+        "previousConditionUuid": null
+      }
+    ]
+  }
+]
