@@ -61,19 +61,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public void ShouldReturnErrorIfNoDisplayPropertyInResponse()
-        {
-            //Given
-            openMrsClientReturnsCareContexts(Endpoints.OpenMrs.OnProgramEnrollmentPath, ProgramEnrollmentSampleWithoutDisplay);
-
-            //When
-            Func<Task> loadProgramEnrollments = async () => { await careContextRepository.LoadProgramEnrollments(null); };
-
-            //Then
-            loadProgramEnrollments.Should().Throw<OpenMrsFormatException>();
-        }
-
-        [Fact]
         public async System.Threading.Tasks.Task ShouldReturnEmptyListIfNoProgramEnrollmentsCareContexts()
         {
             //Given
