@@ -6,6 +6,7 @@ namespace In.ProjectEKA.HipService.Gateway
     using System.Text;
     using System.Threading.Tasks;
     using Common;
+    using In.ProjectEKA.HipService.Gateway.Model;
     using Logger;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
@@ -102,6 +103,11 @@ namespace In.ProjectEKA.HipService.Gateway
             {
                 Log.Error(exception, exception.StackTrace);
             }
+        }
+
+        public void SendDataToGateway(object pATH_CONSENT_ON_NOTIFY, GatewayRevokedConsentRepresentation gatewayRevokedConsentRepresentation, string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
