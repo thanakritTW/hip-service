@@ -15,7 +15,6 @@ namespace In.ProjectEKA.HipService.Link
     using Microsoft.AspNetCore.Mvc.ModelBinding;
     using static Common.Constants;
     using In.ProjectEKA.HipService.Link.Model;
-    using Common;
 
     [Authorize]
     [ApiController]
