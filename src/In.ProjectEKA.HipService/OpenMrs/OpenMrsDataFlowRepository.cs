@@ -10,6 +10,40 @@ using In.ProjectEKA.HipLibrary.Patient.Model;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
+     public static class VisitProperties
+    {
+        public const string results = "results";
+        public const string visitType = "visitType";
+        public const string encounters = "encounters";
+        public const string observations = "obs";
+    }
+
+    public static class VisitTypeProperties
+    {
+        public const string display = "display";
+    }
+
+    public static class ObservationProperties
+    {
+        public const string display = "display";
+        public const string uuid = "uuid";
+    }
+
+    public static class ConditionProperties
+    {
+        public const string conditions = "conditions";
+        public const string concept = "concept";
+        public const string onSetDate = "onSetDate";
+        public const string uuid = "uuid";
+        public const string conditionNonCoded = "conditionNonCoded";
+        public const string status = "status";
+    }
+
+    public static class ConceptProperties
+    {
+        public const string name = "name";
+    }
+
     public class OpenMrsDataFlowRepository : IOpenMrsDataFlowRepository
     {
         private readonly IOpenMrsClient openMrsClient;
@@ -24,32 +58,29 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             JsonElement root = await getRootElementOfResult(patientReferenceNumber);
 
-            var results = root.GetProperty("results");
-            for (int i = 0; i < results.GetArrayLength(); i++)
-            {
-                var visitType = results[i].GetProperty("visitType");
-
-                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
-                {
-                    var encounters = results[i].GetProperty("encounters");
-                    if (encounters.GetArrayLength() != 0)
-                    {
-                        for (int j = 0; j < encounters.GetArrayLength(); j++)
+            var results = getResults(root);
+            var encountersMatchingVisitType = getEncounters(results, visitTypeDisplay);
+            encountersMatchingVisitType.ForEach(e => {
+                if (e.GetArrayLength() != 0) {
+                    for (int j = 0; j < e.GetArrayLength(); j++)
                         {
-                            var obs = encounters[j].GetProperty("obs");
+                            var obs = e[j].GetProperty(VisitProperties.observations);
                             if (obs.GetArrayLength() != 0)
                             {
                                 for (int k = 0; k < obs.GetArrayLength(); k++)
                                 {
-                                    observations.Add(new Observation(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
+                                    observations.Add(
+                                        new Observation(
+                                            obs[k].GetProperty(ObservationProperties.uuid).GetString(),
+                                            obs[k].GetProperty(ObservationProperties.display).GetString()
+                                        )
+                                    );
                                 }
                             }
 
                         }
-                    }
                 }
-            }
-
+            });
 
             return observations;
         }
@@ -60,38 +91,31 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             JsonElement root = await getRootElementOfResult(patientReferenceNumber);
 
-            var results = root.GetProperty("results");
-            for (int i = 0; i < results.GetArrayLength(); i++)
-            {
-                var visitType = results[i].GetProperty("visitType");
-
-                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
-                {
-                    var encounters = results[i].GetProperty("encounters");
+            var results = getResults(root);
+            var encountersMatchingVisitType = getEncounters(results, visitTypeDisplay);
+            encountersMatchingVisitType.ForEach(e => {
+                if (e.GetArrayLength() != 0)
                     {
-                        if (encounters.GetArrayLength() != 0)
+                        for (int j = 0; j < e.GetArrayLength(); j++)
                         {
-                            for (int j = 0; j < encounters.GetArrayLength(); j++)
+                            var obs = e[j].GetProperty("obs");
                             {
-                                var obs = encounters[j].GetProperty("obs");
+                                if (obs.GetArrayLength() != 0)
                                 {
-                                    if (obs.GetArrayLength() != 0)
+                                    for (int k = 0; k < obs.GetArrayLength(); k++)
                                     {
-                                        for (int k = 0; k < obs.GetArrayLength(); k++)
+                                        if (obs[k].TryGetProperty("display", out var obsDisplay) && obsDisplay.GetString().Contains(diagnosisVisit))
                                         {
-                                            if (obs[k].TryGetProperty("display", out var obsDisplay) && obsDisplay.GetString().Contains(diagnosisVisit))
-                                            {
-                                                diagnosis.Add(new Diagnosis(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
-                                            }
+                                            diagnosis.Add(new Diagnosis(obs[k].GetProperty("uuid").ToString(), obs[k].GetProperty("display").ToString()));
                                         }
                                     }
                                 }
-
                             }
+
                         }
                     }
-                }
-            }
+            });
+            
             return diagnosis;
         }
         public async Task<List<Medication>> LoadMedicationForVisits(string patientReferenceNumber, string visitTypeDisplay)
@@ -100,35 +124,28 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             JsonElement root = await getRootElementOfResult(patientReferenceNumber);
 
-            var results = root.GetProperty("results");
-            for (int i = 0; i < results.GetArrayLength(); i++)
-            {
-                var visitType = results[i].GetProperty("visitType");
-
-                if (visitType.TryGetProperty("display", out var display) && display.GetString() == visitTypeDisplay)
-                {
-                    var encounters = results[i].GetProperty("encounters");
+            var results = getResults(root);
+            var encountersMatchingVisitType = getEncounters(results, visitTypeDisplay);
+            encountersMatchingVisitType.ForEach(e => {
+                if (e.GetArrayLength() != 0)
                     {
-                        if (encounters.GetArrayLength() != 0)
+                        for (int j = 0; j < e.GetArrayLength(); j++)
                         {
-                            for (int j = 0; j < encounters.GetArrayLength(); j++)
+                            var orders = e[j].GetProperty("orders");
                             {
-                                var orders = encounters[j].GetProperty("orders");
+                                if (orders.GetArrayLength() != 0)
                                 {
-                                    if (orders.GetArrayLength() != 0)
+                                    for (int k = 0; k < orders.GetArrayLength(); k++)
                                     {
-                                        for (int k = 0; k < orders.GetArrayLength(); k++)
-                                        {
-                                            medications.Add(new Medication(orders[k].GetProperty("uuid").ToString(), orders[k].GetProperty("display").ToString(), orders[k].GetProperty("type").ToString()));
-                                        }
+                                        medications.Add(new Medication(orders[k].GetProperty("uuid").ToString(), orders[k].GetProperty("display").ToString(), orders[k].GetProperty("type").ToString()));
                                     }
                                 }
-
                             }
+
                         }
                     }
-                }
-            }
+            });
+            
             return medications;
         }
 
@@ -158,18 +175,18 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                var condition = results[i].GetProperty("conditions");
+                var condition = results[i].GetProperty(ConditionProperties.conditions);
                 for (int j = 0; j < condition.GetArrayLength(); j++)
                 {
-                    var concept = condition[j].GetProperty("concept");
-                    var onSetDateMilliseconds = condition[j].GetProperty("onSetDate").GetInt64();
+                    var concept = condition[j].GetProperty(ConditionProperties.concept);
+                    var onSetDateMilliseconds = condition[j].GetProperty(ConditionProperties.onSetDate).GetInt64();
                     DateTime onSetDate = DateTimeOffset.FromUnixTimeMilliseconds(onSetDateMilliseconds).UtcDateTime;
 
                     conditions.Add(new Condition(
-                        condition[j].GetProperty("uuid").GetString(),
-                        new Concept(concept.GetProperty("uuid").GetString(), concept.GetProperty("name").GetString()),
-                        condition[j].GetProperty("conditionNonCoded").GetString(),
-                        condition[j].GetProperty("status").GetString(),
+                        condition[j].GetProperty(ConditionProperties.uuid).GetString(),
+                        new Concept(concept.GetProperty(ConditionProperties.uuid).GetString(), concept.GetProperty(ConceptProperties.name).GetString()),
+                        condition[j].GetProperty(ConditionProperties.conditionNonCoded).GetString(),
+                        condition[j].GetProperty(ConditionProperties.status).GetString(),
                         onSetDate
                     ));
                 }
@@ -201,6 +218,25 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var jsonDoc = JsonDocument.Parse(content);
             var root = jsonDoc.RootElement;
             return root;
+        }
+
+        private JsonElement getResults(JsonElement root)
+        {
+            return root.GetProperty(VisitProperties.results);
+        }
+
+        private List<JsonElement> getEncounters(JsonElement results, string visitTypeDisplay)
+        {
+            var encountersMatchingVisitType = new List<JsonElement>();
+            for (int i = 0; i < results.GetArrayLength(); i++)
+            {
+                var visitType = results[i].GetProperty(VisitProperties.visitType);
+                if (visitType.TryGetProperty(VisitTypeProperties.display, out var display) && display.GetString() == visitTypeDisplay)
+                {
+                    encountersMatchingVisitType.Add(results[i].GetProperty(VisitProperties.encounters));
+                }
+            }
+            return encountersMatchingVisitType;
         }
     }
 }
