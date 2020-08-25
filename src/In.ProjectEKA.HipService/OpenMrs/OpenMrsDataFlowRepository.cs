@@ -239,7 +239,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return encountersMatchingVisitType;
         }
 
-        public async Task<List<Observation>> LoadObservationsForPrograms(string programEnrollementUuid)
+        public async Task<IEnumerable<Observation>> LoadObservationsForPrograms(string programEnrollementUuid)
         {
             var path = DataFlowPathConstants.OnCustomQueryPath;
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -260,22 +260,47 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var jsonDoc = JsonDocument.Parse(content);
             var observationsArray = jsonDoc.RootElement;
 
-            return ParseJsonArrayToObservationCollection(observationsArray)
+            var observationUuids = ParseJsonArrayToObservationUuids(observationsArray)
                 .ToList();
+            var observations = LoadObservations(observationUuids);
 
+            return await observations;
         }
 
-        private IEnumerable<Observation> ParseJsonArrayToObservationCollection(JsonElement observationsArray)
+        private async Task<IEnumerable<Observation>> LoadObservations(IEnumerable<string> observationUuids)
+        {
+            var observations = observationUuids.Select(async o =>
+            {
+                var response = await openMrsClient.GetAsync($"{DataFlowPathConstants.OnObsPath}/{o}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                var jsonDoc = JsonDocument.Parse(content);
+                var observation = jsonDoc.RootElement;
+
+                return ParseObservation(observation);
+            });
+
+            return await Task.WhenAll(observations);
+        }
+
+        private IEnumerable<string> ParseJsonArrayToObservationUuids(JsonElement observationsArray)
         {
             foreach (var observation in observationsArray.EnumerateArray())
             {
-                yield return ParseObservation(observation);
+                yield return ParseObservationUuid(observation);
             }
+        }
+
+        private string ParseObservationUuid(JsonElement observationObject)
+        {
+            return observationObject.GetProperty("uuid").GetString();
         }
 
         private Observation ParseObservation(JsonElement observationObject)
         {
-            return new Observation("", "");
+            return new Observation(
+                observationObject.GetProperty("uuid").GetString(),
+                observationObject.GetProperty("display").GetString());
         }
     }
 }

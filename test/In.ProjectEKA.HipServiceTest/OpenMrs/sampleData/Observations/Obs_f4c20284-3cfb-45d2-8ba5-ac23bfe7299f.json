@@ -1,0 +1,76 @@
+﻿{
+  "uuid": "f4c20284-3cfb-45d2-8ba5-ac23bfe7299f",
+  "display": "Mental Health, Drugs Provided: test drug",
+  "concept": {
+    "uuid": "ed0b4f98-fd48-4e04-a16f-ea5f57c78b91",
+    "display": "Mental Health, Drugs Provided",
+    "links": [
+      {
+        "rel": "self",
+        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/concept/ed0b4f98-fd48-4e04-a16f-ea5f57c78b91"
+      }
+    ]
+  },
+  "person": {
+    "uuid": "813ab41d-9bf7-4aa2-85ea-67a785488bf8",
+    "display": "BAH203001 - First Middle Last",
+    "links": [
+      {
+        "rel": "self",
+        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/patient/813ab41d-9bf7-4aa2-85ea-67a785488bf8"
+      }
+    ]
+  },
+  "obsDatetime": "2020-08-24T13:07:47.000+0530",
+  "accessionNumber": null,
+  "obsGroup": {
+    "uuid": "15d8c427-9f31-4049-9509-07ab7b599f1b",
+    "display": "Mental Health: Treatment complete, test drug, test chief complaint, test diagnosis",
+    "links": [
+      {
+        "rel": "self",
+        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/obs/15d8c427-9f31-4049-9509-07ab7b599f1b"
+      }
+    ]
+  },
+  "valueCodedName": null,
+  "groupMembers": null,
+  "comment": null,
+  "location": {
+    "uuid": "c58e12ed-3f12-11e4-adec-0800271c1b75",
+    "display": "OPD-1",
+    "links": [
+      {
+        "rel": "self",
+        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/location/c58e12ed-3f12-11e4-adec-0800271c1b75"
+      }
+    ]
+  },
+  "order": null,
+  "encounter": {
+    "uuid": "14f306e1-0b4f-44ee-b2bc-2dfcbc33060d",
+    "display": "Consultation 08/24/2020",
+    "links": [
+      {
+        "rel": "self",
+        "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/encounter/14f306e1-0b4f-44ee-b2bc-2dfcbc33060d"
+      }
+    ]
+  },
+  "voided": false,
+  "value": "test drug",
+  "valueModifier": null,
+  "formFieldPath": null,
+  "formFieldNamespace": null,
+  "links": [
+    {
+      "rel": "self",
+      "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/obs/f4c20284-3cfb-45d2-8ba5-ac23bfe7299f"
+    },
+    {
+      "rel": "full",
+      "uri": "http://bahmni-0.92.bahmni-covid19.in/openmrs/ws/rest/v1/obs/f4c20284-3cfb-45d2-8ba5-ac23bfe7299f?v=full"
+    }
+  ],
+  "resourceVersion": "1.11"
+}

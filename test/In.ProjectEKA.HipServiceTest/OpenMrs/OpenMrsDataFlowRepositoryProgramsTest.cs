@@ -9,40 +9,63 @@ using Moq;
 using Xunit;
 using System.IO;
 using System.Collections.Generic;
+
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
 
-  [Collection("DataFlowRepository Tests")]
-  public class OpenMrsDataFlowRepositoryProgramsTest
-  {
-    private readonly Mock<IOpenMrsClient> openmrsClientMock;
-    private readonly OpenMrsDataFlowRepository dataFlowRepository;
-
-    public OpenMrsDataFlowRepositoryProgramsTest()
+    [Collection("DataFlowRepository Tests")]
+    public class OpenMrsDataFlowRepositoryProgramsTest
     {
-      openmrsClientMock = new Mock<IOpenMrsClient>();
-      dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
-    }
+        private readonly Mock<IOpenMrsClient> openmrsClientMock;
+        private readonly OpenMrsDataFlowRepository dataFlowRepository;
 
-    [Fact]
-    public async Task LoadObservationsForPrograms_ShouldReturnListOfObservations()
-    {
-      //Given
-      string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
+        public OpenMrsDataFlowRepositoryProgramsTest()
+        {
+          openmrsClientMock = new Mock<IOpenMrsClient>();
+          dataFlowRepository = new OpenMrsDataFlowRepository(openmrsClientMock.Object);
+        }
 
-      var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
+        [Fact]
+        public async Task LoadObservationsForPrograms_ShouldReturnListOfObservations()
+        {
+            //Given
+            string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
 
-      var patientProgramsWithObservationsResponse =
-                File.ReadAllText("../../../OpenMrs/sampleData/PatientProgramsWithObservations.json");
-      SetupOpenMrsClient(path, patientProgramsWithObservationsResponse);
+            var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
 
-      //When
-      var observations = await dataFlowRepository.LoadObservationsForPrograms(programEnrollmentUuid);
+            var patientProgramsWithObservationsResponse =
+                    File.ReadAllText("../../../OpenMrs/sampleData/PatientProgramsWithObservations.json");
+            SetupOpenMrsClient(path, patientProgramsWithObservationsResponse);
+            var expectedObservations = new Dictionary<string, string> {
+                { "15d8c427-9f31-4049-9509-07ab7b599f1b", "Mental Health: Treatment complete, test drug, test chief complaint, test diagnosis" }
+                , { "3b319244-4946-44f9-a271-4df830968b93", "Mental Health, Disposition: Treatment complete" }
+                , { "f4c20284-3cfb-45d2-8ba5-ac23bfe7299f", "Mental Health, Drugs Provided: test drug" }
+                , { "549d33ad-ff78-404c-8021-19a16a6f539b", "Mental Health, Chief Complaint: test chief complaint" }
+                , { "995597e2-9daf-45d6-b382-1a7f950c2179", "Mental Health, Diagnosis: test diagnosis" }
+            };
+            foreach (var obsUuid in expectedObservations.Keys)
+            {
+                SetupOpenMrsClient(
+                    $"{Endpoints.OpenMrs.OnObs}/{obsUuid}",
+                    File.ReadAllText($"../../../OpenMrs/sampleData/Observations/Obs_{obsUuid}.json")
+                );
+            }
 
-      //Then
-      observations.Should().NotBeNullOrEmpty();
-      observations.Should().HaveCount(5);
-    }
+            //When
+            var observations = await dataFlowRepository.LoadObservationsForPrograms(programEnrollmentUuid);
+
+            //Then
+            observations.Should().NotBeNullOrEmpty();
+            observations.Should().HaveCount(expectedObservations.Count);
+            foreach (var observation in observations)
+            {
+                expectedObservations.Values.Should().Contain(observation.Display);
+            }
+            foreach (var expectedObservation in expectedObservations)
+            {
+                observations.Select(o => o.Display).Should().Contain(expectedObservation.Value);
+            }
+        }
 
     //public static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
     //{
@@ -343,16 +366,16 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     //  firstCondition.ConditionNonCoded.Should().Be(null);
     //}
 
-    private void SetupOpenMrsClient(string path, string response)
-    {
-      openmrsClientMock
-          .Setup(x => x.GetAsync(path))
-          .ReturnsAsync(new HttpResponseMessage
-          {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(response)
-          })
-          .Verifiable();
+        private void SetupOpenMrsClient(string path, string response)
+        {
+            openmrsClientMock
+                .Setup(x => x.GetAsync(path))
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(response)
+                })
+                .Verifiable();
+        }
     }
-  }
 }

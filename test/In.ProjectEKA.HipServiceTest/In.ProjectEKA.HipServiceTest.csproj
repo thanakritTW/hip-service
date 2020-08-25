@@ -38,5 +38,6 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Common\TestServer\" />
+      <Folder Include="OpenMrs\sampleData\Observations\" />
     </ItemGroup>
 </Project>
