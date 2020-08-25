@@ -9,7 +9,7 @@ services:
       - rabbitmq
       - otp
   otp:
-    build: src/In.ProjectEKA.OtpService/.
+    image: "ganesan92/otp-service"
     depends_on:
       - db
   gateway:
