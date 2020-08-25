@@ -238,5 +238,44 @@ namespace In.ProjectEKA.HipService.OpenMrs
             }
             return encountersMatchingVisitType;
         }
+
+        public async Task<List<Observation>> LoadObservationsForPrograms(string programEnrollementUuid)
+        {
+            var path = DataFlowPathConstants.OnCustomQueryPath;
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(programEnrollementUuid))
+            {
+                query["q"] = "emrapi.sqlSearch.programObservations";
+                query["program_enrollment_uuid"] = programEnrollementUuid;
+            }
+            else
+            {
+                throw new OpenMrsFormatException();
+            }
+            path = $"{path}?{query}";
+
+            var response = await openMrsClient.GetAsync(path);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var jsonDoc = JsonDocument.Parse(content);
+            var observationsArray = jsonDoc.RootElement;
+
+            return ParseJsonArrayToObservationCollection(observationsArray)
+                .ToList();
+
+        }
+
+        private IEnumerable<Observation> ParseJsonArrayToObservationCollection(JsonElement observationsArray)
+        {
+            foreach (var observation in observationsArray.EnumerateArray())
+            {
+                yield return ParseObservation(observation);
+            }
+        }
+
+        private Observation ParseObservation(JsonElement observationObject)
+        {
+            return new Observation("", "");
+        }
     }
 }

@@ -8,5 +8,7 @@ namespace In.ProjectEKA.HipLibrary.Patient
   {
     Task<List<Observation>> LoadObservationsForVisits(string patientReferenceNumber, string visitType);
 
+    Task<List<Observation>> LoadObservationsForPrograms(string programEnrollementUuid);
+
   }
 }
