@@ -1,8 +1,6 @@
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
-  public static class Endpoints
-  {
-    public static class OpenMrs
+    public static class Endpoints
     {
         public const string OnProgramEnrollmentPath = "ws/rest/v1/bahmniprogramenrollment";
         public const string OnVisitPath = "ws/rest/v1/visit";
@@ -17,5 +15,4 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
     {
         public const string OnConditionPath = "ws/rest/emrapi/conditionhistory";
     }
-  }
 }

@@ -12,36 +12,36 @@ namespace In.ProjectEKA.HipService.OpenMrs
 {
      public static class VisitProperties
     {
-        public const string results = "results";
-        public const string visitType = "visitType";
-        public const string encounters = "encounters";
-        public const string observations = "obs";
+        public const string Results = "results";
+        public const string VisitType = "visitType";
+        public const string Encounters = "encounters";
+        public const string Observations = "obs";
     }
 
     public static class VisitTypeProperties
     {
-        public const string display = "display";
+        public const string Display = "display";
     }
 
     public static class ObservationProperties
     {
-        public const string display = "display";
-        public const string uuid = "uuid";
+        public const string Display = "display";
+        public const string Uuid = "uuid";
     }
 
     public static class ConditionProperties
     {
-        public const string conditions = "conditions";
-        public const string concept = "concept";
-        public const string onSetDate = "onSetDate";
-        public const string uuid = "uuid";
-        public const string conditionNonCoded = "conditionNonCoded";
-        public const string status = "status";
+        public const string Conditions = "conditions";
+        public const string Concept = "concept";
+        public const string OnSetDate = "onSetDate";
+        public const string Uuid = "uuid";
+        public const string ConditionNonCoded = "conditionNonCoded";
+        public const string Status = "status";
     }
 
     public static class ConceptProperties
     {
-        public const string name = "name";
+        public const string Name = "name";
     }
 
     public class OpenMrsDataFlowRepository : IOpenMrsDataFlowRepository
@@ -64,15 +64,15 @@ namespace In.ProjectEKA.HipService.OpenMrs
                 if (e.GetArrayLength() != 0) {
                     for (int j = 0; j < e.GetArrayLength(); j++)
                         {
-                            var obs = e[j].GetProperty(VisitProperties.observations);
+                            var obs = e[j].GetProperty(VisitProperties.Observations);
                             if (obs.GetArrayLength() != 0)
                             {
                                 for (int k = 0; k < obs.GetArrayLength(); k++)
                                 {
                                     observations.Add(
                                         new Observation(
-                                            obs[k].GetProperty(ObservationProperties.uuid).GetString(),
-                                            obs[k].GetProperty(ObservationProperties.display).GetString()
+                                            obs[k].GetProperty(ObservationProperties.Uuid).GetString(),
+                                            obs[k].GetProperty(ObservationProperties.Display).GetString()
                                         )
                                     );
                                 }
@@ -176,18 +176,18 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                var condition = results[i].GetProperty(ConditionProperties.conditions);
+                var condition = results[i].GetProperty(ConditionProperties.Conditions);
                 for (int j = 0; j < condition.GetArrayLength(); j++)
                 {
-                    var concept = condition[j].GetProperty(ConditionProperties.concept);
-                    var onSetDateMilliseconds = condition[j].GetProperty(ConditionProperties.onSetDate).GetInt64();
+                    var concept = condition[j].GetProperty(ConditionProperties.Concept);
+                    var onSetDateMilliseconds = condition[j].GetProperty(ConditionProperties.OnSetDate).GetInt64();
                     DateTime onSetDate = DateTimeOffset.FromUnixTimeMilliseconds(onSetDateMilliseconds).UtcDateTime;
 
                     conditions.Add(new Condition(
-                        condition[j].GetProperty(ConditionProperties.uuid).GetString(),
-                        new Concept(concept.GetProperty(ConditionProperties.uuid).GetString(), concept.GetProperty(ConceptProperties.name).GetString()),
-                        condition[j].GetProperty(ConditionProperties.conditionNonCoded).GetString(),
-                        condition[j].GetProperty(ConditionProperties.status).GetString(),
+                        condition[j].GetProperty(ConditionProperties.Uuid).GetString(),
+                        new Concept(concept.GetProperty(ConditionProperties.Uuid).GetString(), concept.GetProperty(ConceptProperties.Name).GetString()),
+                        condition[j].GetProperty(ConditionProperties.ConditionNonCoded).GetString(),
+                        condition[j].GetProperty(ConditionProperties.Status).GetString(),
                         onSetDate
                     ));
                 }
@@ -243,7 +243,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         private JsonElement getResults(JsonElement root)
         {
-            return root.GetProperty(VisitProperties.results);
+            return root.GetProperty(VisitProperties.Results);
         }
 
         private List<JsonElement> getEncounters(JsonElement results, string visitTypeDisplay)
@@ -251,10 +251,10 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var encountersMatchingVisitType = new List<JsonElement>();
             for (int i = 0; i < results.GetArrayLength(); i++)
             {
-                var visitType = results[i].GetProperty(VisitProperties.visitType);
-                if (visitType.TryGetProperty(VisitTypeProperties.display, out var display) && display.GetString() == visitTypeDisplay)
+                var visitType = results[i].GetProperty(VisitProperties.VisitType);
+                if (visitType.TryGetProperty(VisitTypeProperties.Display, out var display) && display.GetString() == visitTypeDisplay)
                 {
-                    encountersMatchingVisitType.Add(results[i].GetProperty(VisitProperties.encounters));
+                    encountersMatchingVisitType.Add(results[i].GetProperty(VisitProperties.Encounters));
                 }
             }
             return encountersMatchingVisitType;
