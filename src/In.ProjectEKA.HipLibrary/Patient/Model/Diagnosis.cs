@@ -11,4 +11,5 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
       ReferenceNumber = referenceNumber;
       Display = display;
     }
+  }
 }

@@ -15,21 +15,20 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         public OpenMrsPatientRepository(IPatientDal patientDal, ICareContextRepository careContextRepository, IPhoneNumberRepository phoneNumberRepository)
         {
-            _patientDal = patientDal;
-            _careContextRepository = careContextRepository;
-            _phoneNumberRepository = phoneNumberRepository;
+        _patientDal = patientDal;
+        _careContextRepository = careContextRepository;
+        _phoneNumberRepository = phoneNumberRepository;
         }
 
-        public async Task<Option<Patient>> PatientWithAsync(string patientIdentifier)
+        public async Task<Option<Patient>> PatientWithAsync(string referenceNumber)
         {
-            var fhirPatient = await _patientDal.LoadPatientAsyncWithIndentifier(patientIdentifier);
-            var firstName = fhirPatient.Name[0].GivenElement.FirstOrDefault().ToString();
-            var hipPatient = fhirPatient.ToHipPatient(firstName);
-            var referenceNumber = hipPatient.Uuid;
-            hipPatient.CareContexts = await _careContextRepository.GetCareContexts(referenceNumber);
-            hipPatient.PhoneNumber = await _phoneNumberRepository.GetPhoneNumber(referenceNumber);
+        var fhirPatient = await _patientDal.LoadPatientAsync(referenceNumber);
+        var firstName = fhirPatient.Name[0].GivenElement.FirstOrDefault().ToString();
+        var hipPatient = fhirPatient.ToHipPatient(firstName);
+        hipPatient.CareContexts = await _careContextRepository.GetCareContexts(referenceNumber);
+        hipPatient.PhoneNumber = await _phoneNumberRepository.GetPhoneNumber(referenceNumber);
 
-            return Option.Some(hipPatient);
+        return Option.Some(hipPatient);
         }
     }
 }

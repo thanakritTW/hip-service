@@ -196,25 +196,6 @@ namespace In.ProjectEKA.HipService.OpenMrs
             return conditions;
         }
 
-        private JsonElement getResults(JsonElement root)
-        {
-            return root.GetProperty(VisitProperties.results);
-        }
-
-        private List<JsonElement> getEncounters(JsonElement results, string visitTypeDisplay)
-        {
-            var encountersMatchingVisitType = new List<JsonElement>();
-            for (int i = 0; i < results.GetArrayLength(); i++)
-            {
-                var visitType = results[i].GetProperty(VisitProperties.visitType);
-                if (visitType.TryGetProperty(VisitTypeProperties.display, out var display) && display.GetString() == visitTypeDisplay)
-                {
-                    encountersMatchingVisitType.Add(results[i].GetProperty(VisitProperties.encounters));
-                }
-            }
-            return encountersMatchingVisitType;
-        }
-
         private async Task<JsonElement> getRootElementOfResult(string patientReferenceNumber)
         {
             var path = DataFlowPathConstants.OnVisitPath;
