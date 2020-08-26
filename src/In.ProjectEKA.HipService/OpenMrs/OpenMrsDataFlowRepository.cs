@@ -305,9 +305,17 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         private Observation ParseObservation(JsonElement observationObject)
         {
-            return new Observation(
-                observationObject.GetProperty("uuid").GetString(),
-                observationObject.GetProperty("display").GetString());
+            try
+            {
+                return new Observation(
+                    observationObject.GetProperty("uuid").GetString(),
+                    observationObject.GetProperty("display").GetString());
+            }
+            catch (KeyNotFoundException ex)
+            {
+                Logger.Log.Error("Missing uuid key or display in Observation response. {0}", ex);
+                throw new OpenMrsFormatException();
+            }
         }
     }
 }

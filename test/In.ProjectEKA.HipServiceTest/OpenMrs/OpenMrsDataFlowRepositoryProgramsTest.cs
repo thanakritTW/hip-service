@@ -68,7 +68,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         }
 
         [Fact]
-        public void LoadObservationsForProgramsWhenObservationsHaveNoUuid_ShouldThrowErrorAndLogError()
+        public void LoadObservationsForProgramsWhenObservationsHaveNoUuid_ShouldThrowError()
         {
             //Given
             string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
@@ -78,6 +78,32 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             var patientProgramsWithObservationsResponse =
                     File.ReadAllText("../../../OpenMrs/sampleData/PatientProgramsWithObservationsHavingNoUuid.json");
             SetupOpenMrsClient(path, patientProgramsWithObservationsResponse);
+
+            //When
+            Func<Task> loadObservations = async () =>
+                await dataFlowRepository.LoadObservationsForPrograms(programEnrollmentUuid);
+
+            //Then
+            loadObservations.Should().Throw<OpenMrsFormatException>();
+        }
+
+
+        [Fact]
+        public void LoadObservationsForProgramsWhenSpecificObservationHaveNoUuidAndDisplay_ShouldThrowError()
+        {
+            //Given
+            string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
+
+            var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
+
+            var patientProgramsWithObservationsResponse =
+                    File.ReadAllText("../../../OpenMrs/sampleData/PatientProgramsWithOneObservation.json");
+            SetupOpenMrsClient(path, patientProgramsWithObservationsResponse);
+            var obsUuid = "15d8c427-9f31-4049-9509-07ab7b599f1b";
+            SetupOpenMrsClient(
+                $"{Endpoints.OpenMrs.OnObs}/{obsUuid}",
+                File.ReadAllText($"../../../OpenMrs/sampleData/Observations/Obs_{obsUuid}_without_uuid_and_display.json")
+            );
 
             //When
             Func<Task> loadObservations = async () =>
