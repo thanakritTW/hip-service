@@ -260,8 +260,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var jsonDoc = JsonDocument.Parse(content);
             var observationsArray = jsonDoc.RootElement;
 
-            var observationUuids = ParseJsonArrayToObservationUuids(observationsArray)
-                .ToList();
+            var observationUuids = ParseJsonArrayToObservationUuids(observationsArray);
             var observations = LoadObservations(observationUuids);
 
             return await observations;
@@ -293,7 +292,15 @@ namespace In.ProjectEKA.HipService.OpenMrs
 
         private string ParseObservationUuid(JsonElement observationObject)
         {
-            return observationObject.GetProperty("uuid").GetString();
+            try
+            {
+                return observationObject.GetProperty("uuid").GetString();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                Logger.Log.Error("Missing uuid key in Observations response. {0}", ex);
+                throw new OpenMrsFormatException();
+            }
         }
 
         private Observation ParseObservation(JsonElement observationObject)
