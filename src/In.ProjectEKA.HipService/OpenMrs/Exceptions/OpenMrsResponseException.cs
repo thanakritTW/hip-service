@@ -1,9 +1,9 @@
 ﻿using System;
 namespace In.ProjectEKA.HipService.OpenMrs.Exceptions
 {
-    public class OpenMrsResponseException
+    public class OpenMrsResponseException : Exception
     {
-        public OpenMrsResponseException()
+        public OpenMrsResponseException(string? message) : base(message)
         {
         }
     }

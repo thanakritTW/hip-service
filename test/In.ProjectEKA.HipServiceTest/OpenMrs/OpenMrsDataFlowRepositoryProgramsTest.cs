@@ -9,6 +9,7 @@ using Moq;
 using Xunit;
 using System.IO;
 using System.Collections.Generic;
+using In.ProjectEKA.HipService.OpenMrs.Exceptions;
 
 namespace In.ProjectEKA.HipServiceTest.OpenMrs
 {
@@ -87,7 +88,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             loadObservations.Should().Throw<OpenMrsFormatException>();
         }
 
-
         [Fact]
         public void LoadObservationsForProgramsWhenSpecificObservationHaveNoUuidAndDisplay_ShouldThrowError()
         {
@@ -113,13 +113,31 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             loadObservations.Should().Throw<OpenMrsFormatException>();
         }
 
-        private void SetupOpenMrsClient(string path, string response)
+        [Fact]
+        public void LoadObservationsForProgramsWhenUnsuccessfulResponose_ShouldThrowError()
+        {
+            //Given
+            string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
+
+            var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
+
+            SetupOpenMrsClient(path, "", HttpStatusCode.BadRequest);
+
+            //When
+            Func<Task> loadObservations = async () =>
+                await dataFlowRepository.LoadObservationsForPrograms(programEnrollmentUuid);
+
+            //Then
+            loadObservations.Should().Throw<OpenMrsResponseException>();
+        }
+
+        private void SetupOpenMrsClient(string path, string response, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
             openmrsClientMock
                 .Setup(x => x.GetAsync(path))
                 .ReturnsAsync(new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.OK,
+                    StatusCode = httpStatusCode,
                     Content = new StringContent(response)
                 })
                 .Verifiable();

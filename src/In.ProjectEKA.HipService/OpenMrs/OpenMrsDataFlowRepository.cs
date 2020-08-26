@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using In.ProjectEKA.HipLibrary.Patient;
 using In.ProjectEKA.HipLibrary.Patient.Model;
+using In.ProjectEKA.HipService.OpenMrs.Exceptions;
 
 namespace In.ProjectEKA.HipService.OpenMrs
 {
@@ -255,6 +256,8 @@ namespace In.ProjectEKA.HipService.OpenMrs
             path = $"{path}?{query}";
 
             var response = await openMrsClient.GetAsync(path);
+            if (!response.IsSuccessStatusCode)
+                throw new OpenMrsResponseException($"Non successful http response {response.StatusCode}");
             var content = await response.Content.ReadAsStringAsync();
 
             var jsonDoc = JsonDocument.Parse(content);
