@@ -334,7 +334,7 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             .Verifiable();
         }
 
-        private static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
+        public static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
         {
             var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
             var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
