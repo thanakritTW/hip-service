@@ -42,19 +42,6 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
         firstObservation.Display.Should().Be("Location of diagnosis: India");
         }
 
-        public static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
-        {
-            var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
-            var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
-            var PatientVisitsWithoutObservation = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutObservation.json");
-            var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
-
-            yield return new object[] { PatientVisitsWithoutVisits };
-            yield return new object[] { PatientVisitsWithoutEncounters };
-            yield return new object[] { PatientVisitsWithoutObservation };
-            yield return new object[] { PatientVisitsWithoutVisitType };
-        }
-
         [Theory]
         [MemberData(nameof(GetPatientVisitsWithNoObservation))]
         public async Task LoadObservationsForVisits_ShouldReturnEmptyList_WhenNoObservationFound(string patientVisits)
@@ -345,6 +332,19 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
                 Content = new StringContent(response)
             })
             .Verifiable();
+        }
+
+        private static IEnumerable<object[]> GetPatientVisitsWithNoObservation()
+        {
+            var PatientVisitsWithoutVisits = File.ReadAllText("../../../OpenMrs/sampleData/EmptyData.json");
+            var PatientVisitsWithoutEncounters = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutEncounters.json");
+            var PatientVisitsWithoutObservation = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitsWithoutObservation.json");
+            var PatientVisitsWithoutVisitType = File.ReadAllText("../../../OpenMrs/sampleData/PatientVisitWithoutVisitType.json");
+
+            yield return new object[] { PatientVisitsWithoutVisits };
+            yield return new object[] { PatientVisitsWithoutEncounters };
+            yield return new object[] { PatientVisitsWithoutObservation };
+            yield return new object[] { PatientVisitsWithoutVisitType };
         }
     }
 }
