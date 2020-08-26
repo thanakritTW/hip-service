@@ -113,15 +113,19 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             loadObservations.Should().Throw<OpenMrsFormatException>();
         }
 
-        [Fact]
-        public void LoadObservationsForProgramsWhenUnsuccessfulResponose_ShouldThrowError()
+        [Theory]
+        [InlineData(HttpStatusCode.Unauthorized)]
+        [InlineData(HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.BadRequest)]
+        [InlineData(HttpStatusCode.NotFound)]
+        public void LoadObservationsForProgramsWhenUnsuccessfulResponose_ShouldThrowError(HttpStatusCode statusCode)
         {
             //Given
             string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
 
             var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
 
-            SetupOpenMrsClient(path, "", HttpStatusCode.BadRequest);
+            SetupOpenMrsClient(path, "", statusCode);
 
             //When
             Func<Task> loadObservations = async () =>

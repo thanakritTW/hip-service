@@ -258,6 +258,7 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var response = await openMrsClient.GetAsync(path);
             if (!response.IsSuccessStatusCode)
                 throw new OpenMrsResponseException($"Non successful http response {response.StatusCode}");
+
             var content = await response.Content.ReadAsStringAsync();
 
             var jsonDoc = JsonDocument.Parse(content);
