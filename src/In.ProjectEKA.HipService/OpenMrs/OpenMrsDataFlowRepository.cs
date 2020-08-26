@@ -275,6 +275,9 @@ namespace In.ProjectEKA.HipService.OpenMrs
             var observations = observationUuids.Select(async o =>
             {
                 var response = await openMrsClient.GetAsync($"{DataFlowPathConstants.OnObsPath}/{o}");
+                if (!response.IsSuccessStatusCode)
+                    throw new OpenMrsResponseException($"Non successful http response {response.StatusCode}");
+
                 var content = await response.Content.ReadAsStringAsync();
 
                 var jsonDoc = JsonDocument.Parse(content);

@@ -135,6 +135,35 @@ namespace In.ProjectEKA.HipServiceTest.OpenMrs
             loadObservations.Should().Throw<OpenMrsResponseException>();
         }
 
+        [Theory]
+        [InlineData(HttpStatusCode.Unauthorized)]
+        [InlineData(HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.BadRequest)]
+        [InlineData(HttpStatusCode.NotFound)]
+        public void LoadObservationsWhenUnsuccessfulResponose_ShouldThrowError(HttpStatusCode statusCode)
+        {
+            //Given
+            string programEnrollmentUuid = "12345678-1234-1234-1234-123456789ABC";
+            var path = $"{Endpoints.OpenMrs.OnProgramObservations}{programEnrollmentUuid}";
+
+            var patientProgramsWithObservationsResponse =
+                    File.ReadAllText("../../../OpenMrs/sampleData/PatientProgramsWithOneObservation.json");
+            SetupOpenMrsClient(path, patientProgramsWithObservationsResponse);
+            var obsUuid = "15d8c427-9f31-4049-9509-07ab7b599f1b";
+            SetupOpenMrsClient(
+                $"{Endpoints.OpenMrs.OnObs}/{obsUuid}",
+                "",
+                statusCode
+            );
+
+            //When
+            Func<Task> loadObservations = async () =>
+                await dataFlowRepository.LoadObservationsForPrograms(programEnrollmentUuid);
+
+            //Then
+            loadObservations.Should().Throw<OpenMrsResponseException>();
+        }
+
         private void SetupOpenMrsClient(string path, string response, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
             openmrsClientMock
