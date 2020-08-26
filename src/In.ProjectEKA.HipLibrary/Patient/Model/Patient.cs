@@ -25,7 +25,7 @@ namespace In.ProjectEKA.HipLibrary.Patient.Model
                 Identifier,
                 Name,
                 unlinkedCareContexts,
-                new[] {Match.ConsentManagerUserId.ToString()});
+                new[] { Match.ConsentManagerUserId.ToString() });
         }
     }
 }
