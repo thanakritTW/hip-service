@@ -5,7 +5,7 @@ on:
     branches-ignore:
        - '**'
     branches:
-      - deployment-pipline
+      - deployment-pipeline
 jobs:
   build:
     runs-on: ubuntu-latest
