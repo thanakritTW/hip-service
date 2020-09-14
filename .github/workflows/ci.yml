@@ -3,7 +3,7 @@ name: CI action
 on:
   push:
     branches:
-      - master
+      - deployment-pipeline
 jobs:
   build:
     runs-on: ubuntu-latest
